@@ -27,8 +27,8 @@ def get_raw(source, destination):
     mp_hostname = source
 
     test_spec = {
-        "source": SOURCE, 
-        "dest": DESTINATION,
+        "source": source, 
+        "dest": destination,
 #        "packet-count": 10,
         "output-raw": True,
         "schema": 1
