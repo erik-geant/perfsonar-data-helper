@@ -67,12 +67,13 @@ def get_raw(source, destination):
 
 
 def get_delays(source, destination):
-   exp = float(0x100000000)
-   def _delta(x):
-       rcv = float(x["dst-ts"])/exp
-       snd = float(x["src-ts"])/exp
-       return rcv-snd
-   return [_delta(x) for x in get_raw(source, destination)]
+    exp = float(0x100000000)
+    def _delta(x):
+        rcv = float(x["dst-ts"])/exp
+        snd = float(x["src-ts"])/exp
+        return rcv-snd
+    return [_delta(x) for x in get_raw(source, destination)]
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
