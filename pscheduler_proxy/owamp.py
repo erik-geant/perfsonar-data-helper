@@ -18,6 +18,7 @@ def _get_task_result(task_url):
         result = rsp.json()
         logging.debug("task state: %s" % result["state"])
         if result["state"] == "finished":
+#            logging.debug("task result: " + json.dumps(result))
             return result
         time.sleep(5)
 
@@ -57,8 +58,21 @@ def get_raw(source, destination):
 
     logging.debug("task created: %s" % rsp.text)
     task_result = _get_task_result(rsp.text.rstrip().replace('"', ''))
-    return task_result["result-merged"]["raw-packets"]
+    if "result" in task_result:
+        return task_result["result"]["raw-packets"]
+    elif "result-merged" in task_result:
+        return task_result["result-merged"]["raw-packets"]
+    else:
+        assert False, "can't find result key in rsp" + str(task_result.keys())
 
+
+def get_delays(source, destination):
+   exp = float(0x100000000)
+   def _delta(x):
+       rcv = float(x["dst-ts"])/exp
+       snd = float(x["src-ts"])/exp
+       return rcv-snd
+   return [_delta(x) for x in get_raw(source, destination)]
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)

@@ -6,7 +6,10 @@ app = Flask(__name__)
 
 @app.route("/owamp/<string:source>/<string:destination>")
 def owamp_raw(source, destination):
-    return jsonify(owamp.get_raw(source=source, destination=destination))
+#    return jsonify(owamp.get_raw(source=source, destination=destination))
+    return jsonify(owamp.get_delays(source=source, destination=destination))
+
+
 
 
 if __name__ == "__main__":
