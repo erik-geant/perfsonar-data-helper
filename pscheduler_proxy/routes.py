@@ -7,7 +7,7 @@ server = Blueprint("measurement-routes", __name__)
 
 
 @server.route("/latency/<string:source>/<string:destination>")
-def latency(source, destination):
+def latency_measurement(source, destination):
 #    return jsonify(latency.get_raw(source=source, destination=destination))
     return jsonify(latency.get_delays(source=source, destination=destination))
 #    return jsonify(latency.get_delays_debug(source=source, destination=destination))
