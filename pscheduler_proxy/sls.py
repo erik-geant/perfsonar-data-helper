@@ -2,6 +2,7 @@ import json
 import logging
 import random
 import requests
+from requests_futures.sessions import FuturesSession
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -21,15 +22,22 @@ def load_sls_mirrors(bootstrap_url):
 
 def load_services(bootstrap_url):
 
-    sls_mirror = random.choice(load_sls_mirrors(bootstrap_url))
+    session = FuturesSession(max_workers=10)
 
-    rsp = requests.get(
-        sls_mirror,
-        headers={"Accept": "application/json"},
-        params={"type": "service"})
+    jobs = [session.get(
+                url,
+                headers={"Accept": "application/json"},
+                params={"type": "service"})
+            for url in load_sls_mirrors(bootstrap_url)]
 
-    assert rsp.status_code == 200
-    return rsp.json() 
+    all_responses = []
+    for j in jobs:
+        rsp = j.result()
+        logging.debug("rsp status_code: %d" % rsp.status_code)
+        assert rsp.status_code == 200
+        all_responses += rsp.json()
+
+    return all_responses
 
 def update_cached_mps(bootstrap_url=SLS_BOOTSTRAP_URL, cache_filename=CACHED_SERVICE_LIST_FILENAME):
     with open(cache_filename, "w") as f:
