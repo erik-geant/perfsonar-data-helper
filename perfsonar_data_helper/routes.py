@@ -1,7 +1,7 @@
 from flask import Blueprint, current_app, jsonify
 
-from pscheduler_proxy import latency
-from pscheduler_proxy import sls
+from perfsonar_data_helper import latency
+from perfsonar_data_helper import sls
 
 server = Blueprint("measurement-routes", __name__)
 

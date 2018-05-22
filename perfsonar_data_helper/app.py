@@ -1,6 +1,6 @@
 import logging
 import sys
-from pscheduler_proxy import app_factory
+from perfsonar_data_helper import app_factory
 
 
 logging.basicConfig(

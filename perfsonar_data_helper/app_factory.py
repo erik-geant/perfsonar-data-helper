@@ -5,8 +5,8 @@ import logging
 import os
 from flask import Flask
 from flask_cors import CORS
-from pscheduler_proxy import sls
-from pscheduler_proxy import routes
+from perfsonar_data_helper import sls
+from perfsonar_data_helper import routes
 
 def create_app():
     """
@@ -19,7 +19,7 @@ def create_app():
 
     app.register_blueprint(routes.server)
 
-    app.config.from_object("pscheduler_proxy.default_settings")
+    app.config.from_object("perfsonar_data_helper.default_settings")
     if "SETTINGS_FILENAME" in os.environ:
         app.config.from_envvar("SETTINGS_FILENAME")
     else:

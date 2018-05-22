@@ -61,7 +61,7 @@ def load_mps(tool, cache_filename):
 
 
 if __name__ == "__main__":
-    from pscheduler_proxy import default_settings
+    from perfsonar_data_helper import default_settings
 
     logging.basicConfig(level=logging.DEBUG)
 
