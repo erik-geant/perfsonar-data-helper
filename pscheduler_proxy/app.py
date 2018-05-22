@@ -9,10 +9,24 @@ app = app_factory.create_app()
 
 
 @app.route("/latency/<string:source>/<string:destination>")
-def latency_raw(source, destination):
+def latency(source, destination):
 #    return jsonify(latency.get_raw(source=source, destination=destination))
     return jsonify(latency.get_delays(source=source, destination=destination))
 #    return jsonify(latency.get_delays_debug(source=source, destination=destination))
+
+
+@app.route("/mplist/<string:tool>")
+def mplist(tool):
+    if tool == "refresh":
+        sls.update_cached_mps(
+            app.config["SLS_BOOTSTRAP_URL"],
+            app.config["SLS_CACHE_FILENAME"])
+        result = {"result": True}
+    else:
+        result = sls.load_mps(tool, app.config["SLS_CACHE_FILENAME"])
+        result = list(result)
+
+    return jsonify(result)
 
 
 if __name__ == "__main__":
