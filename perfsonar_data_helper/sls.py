@@ -48,7 +48,9 @@ def load_mps(tool, cache_filename):
         sls_cache = json.loads(f.read())
     for url in sls_cache.keys():
         for s in sls_cache[url]:
-            #logging.debug("s['service-type'] : %s" % s["service-type"])
+            if "service-type" not in s:
+                logging.debug("'service-type' not in s: " + json.dumps(s))
+                continue
             if "pscheduler" not in s["service-type"]:
                 continue
             if "pscheduler-tools" not in s:
