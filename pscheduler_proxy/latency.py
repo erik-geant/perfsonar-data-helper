@@ -17,6 +17,7 @@ def _get_task_result(task_url):
         assert rsp.status_code == 200
         result = rsp.json()
         logging.debug("task state: %s" % result["state"])
+        assert result["state"] in {"pending", "on-deck", "running", "finished" }
         if result["state"] == "finished":
 #            logging.debug("task result: " + json.dumps(result))
             return result
@@ -64,6 +65,17 @@ def get_raw(source, destination):
         return task_result["result-merged"]["raw-packets"]
     else:
         assert False, "can't find result key in rsp" + str(task_result.keys())
+
+
+def get_delays_debug(source, destination):
+    import os
+    filename = os.path.join(
+        os.path.dirname(__file__),
+        "..",
+        "test",
+        "owamp-deltas.json")
+    with open(filename) as f:
+        return json.loads(f.read())
 
 
 def get_delays(source, destination):

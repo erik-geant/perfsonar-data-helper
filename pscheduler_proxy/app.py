@@ -1,13 +1,18 @@
 from flask import Flask, jsonify
-import owamp
+from flask_cors import CORS
+import latency
 
 app = Flask(__name__)
+CORS(app)
 
 
-@app.route("/owamp/<string:source>/<string:destination>")
-def owamp_raw(source, destination):
-#    return jsonify(owamp.get_raw(source=source, destination=destination))
-    return jsonify(owamp.get_delays(source=source, destination=destination))
+@app.route("/latency/<string:source>/<string:destination>")
+def latency_raw(source, destination):
+#    return jsonify(latency.get_raw(source=source, destination=destination))
+    return jsonify(latency.get_delays(source=source, destination=destination))
+#    return jsonify(latency.get_delays_debug(source=source, destination=destination))
+
+
 
 
 
