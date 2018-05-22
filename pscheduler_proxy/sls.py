@@ -4,10 +4,6 @@ import random
 import requests
 from requests_futures.sessions import FuturesSession
 
-logging.basicConfig(level=logging.DEBUG)
-
-SLS_BOOTSTRAP_URL = "http://ps-west.es.net:8096/lookup/activehosts.json"
-CACHED_SERVICE_LIST_FILENAME = "/tmp/sls-cache.json"
 
 
 def load_sls_hosts(bootstrap_url):
@@ -42,12 +38,12 @@ def load_services(bootstrap_url):
     return all_responses
 
 
-def update_cached_mps(bootstrap_url=SLS_BOOTSTRAP_URL, cache_filename=CACHED_SERVICE_LIST_FILENAME):
+def update_cached_mps(bootstrap_url, cache_filename):
     with open(cache_filename, "w") as f:
         f.write(json.dumps(load_services(bootstrap_url)))
 
 
-def load_mps(tool, cache_filename=CACHED_SERVICE_LIST_FILENAME):
+def load_mps(tool, cache_filename):
     with open(cache_filename) as f:
         sls_cache = json.loads(f.read())
     for url in sls_cache.keys():
@@ -65,6 +61,16 @@ def load_mps(tool, cache_filename=CACHED_SERVICE_LIST_FILENAME):
 
 
 if __name__ == "__main__":
-    update_cached_mps()
-    print(list(load_mps("owping")))
-    
+    from pscheduler_proxy import default_settings
+
+    logging.basicConfig(level=logging.DEBUG)
+
+    update_cached_mps(
+        default_settings.SLS_BOOTSTRAP_URL,
+        default_settings.SLS_CACHE_FILENAME)
+    mps = load_mps(
+        "owping",
+        default_settings.SLS_CACHE_FILENAME)
+
+    logging.info(list(mps))
+
