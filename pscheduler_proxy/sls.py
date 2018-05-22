@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.DEBUG)
 SLS_BOOTSTRAP_URL = "http://ps-west.es.net:8096/lookup/activehosts.json"
 CACHED_SERVICE_LIST_FILENAME = "/tmp/sls-cache.json"
 
-def load_sls_mirrors(bootstrap_url):
+def load_sls_hosts(bootstrap_url):
     rsp = requests.get(
         bootstrap_url,
         headers={"Accept": "application/json"})
@@ -28,7 +28,7 @@ def load_services(bootstrap_url):
                 url,
                 headers={"Accept": "application/json"},
                 params={"type": "service"})
-            for url in load_sls_mirrors(bootstrap_url)]
+            for url in load_sls_hosts(bootstrap_url)]
 
     all_responses = []
     for j in jobs:
