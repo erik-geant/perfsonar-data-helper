@@ -11,7 +11,8 @@ setup(
     install_requires=[
         "flask",
         "flask-cors",
-        "requests"
+        "requests",
+        "requests-futures"
     ]
 )
 
