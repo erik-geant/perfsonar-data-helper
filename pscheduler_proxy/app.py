@@ -1,7 +1,9 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
-import latency
-import app_factory
+
+from pscheduler_proxy import app_factory
+from pscheduler_proxy import latency
+from pscheduler_proxy import sls
 
 app = app_factory.create_app()
 

@@ -5,7 +5,7 @@ import logging
 import os
 from flask import Flask
 from flask_cors import CORS
-import sls
+from pscheduler_proxy import sls
 
 def create_app():
     """
