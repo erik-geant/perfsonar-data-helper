@@ -103,7 +103,6 @@ The following resources can be requested from the webservice.
     {
       "$schema": "http://json-schema.org/draft-06/schema#",
       "type": "array",
-      "minItems": 1,
       "items": {"type": "string"},
     }
   ```
