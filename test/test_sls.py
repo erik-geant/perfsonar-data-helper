@@ -72,5 +72,9 @@ def test_sls_mps():
             settings["SLS_CACHE_FILENAME"])
 
         mps = sls.load_mps("owping", settings["SLS_CACHE_FILENAME"])
-        logging.debug(list(mps))
+        logging.info(list(mps))
 
+
+if __name__ == "__main__":
+    # this is only for profiling
+    test_sls_mps()
