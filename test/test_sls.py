@@ -2,11 +2,19 @@ import logging
 import os
 import tempfile
 import responses
+from jsonschema import validate
 from perfsonar_data_helper import sls
 
-BOOTSTRAP_URL = "http://ps-west.es.net:8096/lookup/activehosts.json"
-
 logging.basicConfig(level=logging.DEBUG)
+
+MP_RESPONSE_SCHEMA = {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "array",
+    "minItems": 1,
+    "items": {"type": "string"},
+}
+
+BOOTSTRAP_URL = "http://ps-west.es.net:8096/lookup/activehosts.json"
 
 # test data
 # data files are in the test/sls directory
@@ -42,6 +50,7 @@ def mock_sls_responses():
             content_type="application/json",
             match_querystring=False)
 
+
 def get_settings(dirname):
     import perfsonar_data_helper
     default_settings_filename = os.path.join(
@@ -72,7 +81,7 @@ def test_sls_mps():
             settings["SLS_CACHE_FILENAME"])
 
         mps = sls.load_mps("owping", settings["SLS_CACHE_FILENAME"])
-        logging.info(list(mps))
+        validate(list(mps), MP_RESPONSE_SCHEMA)
 
 
 if __name__ == "__main__":
