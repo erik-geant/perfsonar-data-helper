@@ -1,15 +1,21 @@
 import logging
 import os
-import tempfile
 import responses
+from jsonschema import validate
 from perfsonar_data_helper import latency
-
 
 logging.basicConfig(level=logging.DEBUG)
 
+DELAY_RESPONSE_SCHEMA = {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "array",
+    "minItems": 1,
+    "minimum": 0.0,
+    "items": {"type": "number"},
+}
+
 SOURCE = "perfsonar-nas.asnet.am"
 DESTINATION = "perfsonar-probe.ripe.net"
-
 
 RESPONSE_DATA = {
     "https://perfsonar-nas.asnet.am/pscheduler/tasks": [
@@ -34,6 +40,7 @@ RESPONSE_DATA = {
     ]
 }
 
+
 def mock_latency_responses():
 
     data_path = os.path.join(os.path.dirname(__file__), "latency")
@@ -56,33 +63,8 @@ def mock_latency_responses():
                 match_querystring=False)
 
 
-# def get_settings(dirname):
-#     import perfsonar_data_helper
-#     default_settings_filename = os.path.join(
-#         perfsonar_data_helper.__path__[0],
-#         "default_settings.py")
-#     with open(default_settings_filename) as f:
-#         contents = f.read()
-#     g = {}
-#     settings = {}
-#     exec(contents, g, settings)
-# 
-#     settings["SLS_CACHE_FILENAME"] = os.path.join(dirname, "sls-cache.json")
-#     settings["SLS_BOOTSTRAP_URL"] = BOOTSTRAP_URL
-#     return settings
-
-
 @responses.activate
 def test_latency_delays():
     mock_latency_responses()
- 
-    with tempfile.TemporaryDirectory() as tmpdir:
-
-#        settings = get_settings(tmpdir)
-
-        logging.info(latency.get_delays(SOURCE, DESTINATION, delay_seconds=-1))
-
-
-if __name__ == "__main__":
-    # this is only for profiling
-    test_latency_delays()
+    delays = latency.get_delays(SOURCE, DESTINATION, delay_seconds=-1)
+    validate(delays, DELAY_RESPONSE_SCHEMA)

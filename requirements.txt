@@ -4,3 +4,4 @@ requests
 requests-futures
 pytest
 responses
+jsonschema
