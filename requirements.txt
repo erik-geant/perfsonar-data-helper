@@ -2,3 +2,6 @@ flask
 flask-cors
 requests
 requests-futures
+pytest
+responses
+jsonschema

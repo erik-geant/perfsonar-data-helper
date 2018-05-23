@@ -5,7 +5,7 @@ import time
 import requests
 
 
-def _get_task_result(task_url):
+def _get_task_result(task_url, delay_seconds):
     logging.debug("task result url: %s" % (task_url + "/runs/first"))
 
     while True:
@@ -21,10 +21,11 @@ def _get_task_result(task_url):
         if result["state"] == "finished":
 #            logging.debug("task result: " + json.dumps(result))
             return result
-        time.sleep(5)
+        if delay_seconds > 0:
+            time.sleep(delay_seconds)
 
 
-def get_raw(source, destination):
+def get_raw(source, destination, delay_seconds):
 
     mp_hostname = source
 
@@ -58,7 +59,9 @@ def get_raw(source, destination):
     assert rsp.status_code == 200
 
     logging.debug("task created: %s" % rsp.text)
-    task_result = _get_task_result(rsp.text.rstrip().replace('"', ''))
+    task_result = _get_task_result(
+        rsp.text.rstrip().replace('"', ''),
+        delay_seconds)
     if "result" in task_result:
         return task_result["result"]["raw-packets"]
     elif "result-merged" in task_result:
@@ -78,13 +81,13 @@ def get_delays_debug(source, destination):
         return json.loads(f.read())
 
 
-def get_delays(source, destination):
+def get_delays(source, destination, delay_seconds=5):
     exp = float(0x100000000)
     def _delta(x):
         rcv = float(x["dst-ts"])/exp
         snd = float(x["src-ts"])/exp
         return rcv-snd
-    return [_delta(x) for x in get_raw(source, destination)]
+    return [_delta(x) for x in get_raw(source, destination, delay_seconds)]
 
 
 if __name__ == "__main__":
