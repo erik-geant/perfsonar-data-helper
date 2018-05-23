@@ -2,6 +2,8 @@ flask
 flask-cors
 requests
 requests-futures
-pytest
 responses
 jsonschema
+pytest
+pytest-cov
+flake8
