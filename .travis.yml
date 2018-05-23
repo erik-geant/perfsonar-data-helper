@@ -6,6 +6,6 @@ install:
     - pip install -r requirements.txt
     - pip install -e .
 script:
-    - py.test --cov-report term --cov perfsonar_data
-#    - py.test --cov-report html:coverage --cov-report term --cov perfsonar_data
+    - py.test --cov-report term --cov perfsonar_data_helper
+#    - py.test --cov-report html:coverage --cov-report term --cov perfsonar_data_helper
     - flake8 perfsonar_data --statistics
