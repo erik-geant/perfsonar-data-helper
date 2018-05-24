@@ -71,7 +71,7 @@ def get_raw(source, destination, delay_seconds):
         assert False, "can't find result key in rsp" + str(task_result.keys())
 
 
-def get_throughput(source, destination, delay_seconds):
+def get_throughput(source, destination, delay_seconds=5):
     def _rspelem(x):
         return {
             "start": x["summary"]["start"],
