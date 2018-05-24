@@ -63,13 +63,22 @@ def get_raw(source, destination, delay_seconds):
     task_result = _get_task_result(
         rsp.text.rstrip().replace('"', ''),
         delay_seconds)
-    return task_result
     if "result" in task_result:
-        return task_result["result"]["raw-packets"]
+        return task_result["result"]["intervals"]
     elif "result-merged" in task_result:
-        return task_result["result-merged"]["raw-packets"]
+        return task_result["result-merged"]["intervals"]
     else:
         assert False, "can't find result key in rsp" + str(task_result.keys())
+
+
+def get_throughput(source, destination, delay_seconds):
+    def _rspelem(x):
+        return {
+            "start": x["summary"]["start"],
+            "end": x["summary"]["end"],
+            "bytes": x["summary"]["throughput-bytes"]
+        }
+    return [_rspelem(x) for x in get_raw(source, destination, delay_seconds)]
 
 
 if __name__ == "__main__":

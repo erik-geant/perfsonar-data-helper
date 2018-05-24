@@ -10,8 +10,15 @@ THROUGHPUT_RESPONSE_SCHEMA = {
     "$schema": "http://json-schema.org/draft-06/schema#",
     "type": "array",
     "minItems": 1,
-    "minimum": 0.0,
-    "items": {"type": "number"},
+    "items": {
+        "type": "object",
+        "properties": {
+            "start": {"type": "number", "minimum": 0.0},
+            "end": {"type": "number", "minimum": 0.0},
+            "bytes": {"type": "integer", "minimum": 0},
+        },
+        "required": ["start", "end", "bytes"]
+    }
 }
 
 SOURCE = "psmall-b-3.basnet.by"
@@ -60,6 +67,6 @@ def mock_throughput_responses():
 @responses.activate
 def test_latency_delays():
     mock_throughput_responses()
-    rsp = throughput.get_raw(SOURCE, DESTINATION, delay_seconds=-1)
-    logging.debug(rsp)
-#    validate(delays, DELAY_RESPONSE_SCHEMA)
+    data = throughput.get_throughput(SOURCE, DESTINATION, delay_seconds=-1)
+    logging.debug(data)
+    validate(data, THROUGHPUT_RESPONSE_SCHEMA)
