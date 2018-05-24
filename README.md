@@ -69,13 +69,13 @@ The following resources can be requested from the webservice.
 
 * `/latency/<source address>/<destination address>`
 
-  This resource sends a request top the `pscheduler` instance running
+  This resource sends a request to the `pscheduler` instance running
   on the source system to schedule and perform a latency
   test.
 
   The response will be a JSON message formatted list
   of the latency measurements for each packet use in the test,
-  and will formatted as follows:
+  and will be formatted as follows:
 
   ```json
     {
@@ -83,6 +83,33 @@ The following resources can be requested from the webservice.
       "type": "array",
       "minimum": 0.0,
       "items": {"type": "number"},
+    }
+  ```
+
+* `/throughput/<source address>/<destination address>`
+
+  This resource sends a request to the `pscheduler` instance running
+  on the source system to schedule and perform a throughput
+  test.
+
+  The response will be a JSON message formatted list
+  of the throughput measurement results and will be
+  formatted as follows:
+
+  ```json
+    {
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+          "type": "object",
+          "properties": {
+              "start": {"type": "number", "minimum": 0.0},
+              "end": {"type": "number", "minimum": 0.0},
+              "bytes": {"type": "integer", "minimum": 0},
+          },
+          "required": ["start", "end", "bytes"]
+      }
     }
   ```
 
