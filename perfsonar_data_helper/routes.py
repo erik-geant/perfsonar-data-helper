@@ -1,6 +1,7 @@
 from flask import Blueprint, current_app, jsonify
 
 from perfsonar_data_helper import latency
+from perfsonar_data_helper import throughput
 from perfsonar_data_helper import sls
 
 server = Blueprint("measurement-routes", __name__)
@@ -11,6 +12,11 @@ def latency_measurement(source, destination):
 #    return jsonify(latency.get_raw(source=source, destination=destination))
     return jsonify(latency.get_delays(source=source, destination=destination))
 #    return jsonify(latency.get_delays_debug(source=source, destination=destination))
+
+
+@server.route("/throughput/<string:source>/<string:destination>")
+def throughput_measurement(source, destination):
+    return jsonify(throughput.get_throughput(source=source, destination=destination))
 
 
 @server.route("/mplist/<string:tool>")
