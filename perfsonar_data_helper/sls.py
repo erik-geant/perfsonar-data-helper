@@ -98,13 +98,13 @@ def load_mps(tool, cache_filename):
 
 
 def hostname_from_url(url):
-    m = re.match("http.://(\[.*\]).*", url)
-    if m is not None:
-        return m.group(1)
-    m = re.match(".*//([^:/]+).*", url)
-    if m is not None:
-        return m.group(1)
-    return "???"
+    m = re.match('^(?P<scheme>http|https|tcp)://(?P<hostname>[^/]+).*', url)
+    if m is None:
+        return url
+    m1 = re.match('^(.*):[^\[\]:]+$', m.group("hostname"))
+    if m1:
+        return m1.group(1)
+    return m.group("hostname")
 
 
 if __name__ == "__main__":
