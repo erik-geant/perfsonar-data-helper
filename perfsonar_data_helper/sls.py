@@ -39,6 +39,16 @@ def load_services(bootstrap_url):
     return all_responses
 
 
+def hostname_from_url(url):
+    m = re.match("http.://(\[.*\]).*", url)
+    if m is not None:
+        return m.group(1)
+    m = re.match(".*//([^:/]+).*", url)
+    if m is not None:
+        return m.group(1)
+    return "???"
+
+
 def update_cached_mps(bootstrap_url, cache_filename):
     with open(cache_filename, "w") as f:
         f.write(json.dumps(load_services(bootstrap_url)))
@@ -85,6 +95,16 @@ def load_mps(tool, cache_filename):
                         "hostname": m.group(1),
                         "domains": groups
                     }
+
+
+def hostname_from_url(url):
+    m = re.match("http.://(\[.*\]).*", url)
+    if m is not None:
+        return m.group(1)
+    m = re.match(".*//([^:/]+).*", url)
+    if m is not None:
+        return m.group(1)
+    return "???"
 
 
 if __name__ == "__main__":

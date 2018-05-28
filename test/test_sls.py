@@ -3,6 +3,7 @@ import os
 import tempfile
 import responses
 from jsonschema import validate
+import pytest
 from perfsonar_data_helper import sls
 
 logging.basicConfig(level=logging.INFO)
@@ -90,6 +91,35 @@ def test_sls_mps():
 
         mps = sls.load_mps("owping", settings["SLS_CACHE_FILENAME"])
         validate(list(mps), MP_RESPONSE_SCHEMA)
+
+
+
+test_data = [
+    ["http://200.143.240.132/esmond/perfsonar/archive", "200.143.240.132"],
+    ["https://200.143.240.132/esmond/perfsonar/archive", "200.143.240.132"],
+    ["tcp://mp-pop-sj-remep.perf.pop-sc.rnp.br:861", "mp-pop-sj-remep.perf.pop-sc.rnp.br"],
+    ["periboea.kenyon.edu", "periboea.kenyon.edu"],
+    ["http://periboea.kenyon.edu/esmond/perfsonar/archive", "periboea.kenyon.edu"],
+    ["https://periboea.kenyon.edu/esmond/perfsonar/archive", "periboea.kenyon.edu"],
+    ["tcp://[2804:1454:1002:100::27]:4823", "[2804:1454:1002:100::27]"],
+    ["tcp://191.36.79.27:4823", "191.36.79.27"],
+    ["200.143.233.6", "200.143.233.6"],
+    ["tcp://sampaps02.if.usp.br:861", "sampaps02.if.usp.br"],
+    ["tcp://[2001:12d0:8120::136]:861", "[2001:12d0:8120::136]"],
+    ["http://200.17.30.136/services/MP/BWCTL", "200.17.30.136"],
+    ["http://[2001:12d0:8120::136]/services/MP/BWCTL", "[2001:12d0:8120::136]"],
+    ["https://200.17.30.136/services/MP/BWCTL", "[2001:12d0:8120::136]"],
+    ["https://[2001:12d0:8120::136]/services/MP/BWCTL", "[2001:12d0:8120::136]"],
+    ["http://[2804:1f10:8000:801::141]/esmond/perfsonar/archive", "[2804:1f10:8000:801::141]"],
+    ["http://152.84.101.141/esmond/perfsonar/archive", "152.84.101.141"],
+    ["https://[2804:1f10:8000:801::141]/esmond/perfsonar/archive", "[2804:1f10:8000:801::141]"],
+    ["https://152.84.101.141/esmond/perfsonar/archive", "152.84.101.141"],
+]
+
+
+@pytest.mark.parametrize("url,expected_hostname", test_data)
+def test_hostname_from_url(url, expected_hostname):
+    assert sls.hostname_from_url(url) == expected_hostname
 
 
 if __name__ == "__main__":
