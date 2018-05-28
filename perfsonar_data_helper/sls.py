@@ -1,6 +1,7 @@
 import json
 import logging
 import random
+import re
 import requests
 from requests_futures.sessions import FuturesSession
 
@@ -44,22 +45,46 @@ def update_cached_mps(bootstrap_url, cache_filename):
 
 
 def load_mps(tool, cache_filename):
+
+    _tool_name_equivalencies = {
+        "owping": {"owping", "owamp"},
+        "owamp": {"owping", "owamp"},
+    }
+
+    def _has_tool(tool_name, service):
+        eqtools = _tool_name_equivalencies.get(tool_name, {tool_name})
+        service_type = service.get("service-type", [])
+        if "pscheduler" in service_type:
+            pscheduler_tools = service.get("pscheduler-tools", [])
+            if eqtools & set(pscheduler_tools):
+                return True
+            return False
+        if eqtools & set(service_type):
+            return True
+        return False
+
     with open(cache_filename) as f:
         sls_cache = json.loads(f.read())
     for url in sls_cache.keys():
         for s in sls_cache[url]:
-            if "service-type" not in s:
-                logging.debug("'service-type' not in s: " + json.dumps(s))
-                continue
-            if "pscheduler" not in s["service-type"]:
-                continue
-            if "pscheduler-tools" not in s:
-                logging.debug("'pscheduler-tools' not in s: " + json.dumps(s))
-                continue
-            if tool not in s["pscheduler-tools"]:
-                continue
-            for l in s["service-locator"]:
-              yield l
+            if _has_tool(tool, s):
+
+                service_locators = s.get("service-locator", [])
+                service_names = s.get("service-name", [])
+                if len(service_names) == 0:
+                    service_name = "???"
+                else:
+                    service_name = service_names[0]
+                groups = s.get("group-domains", [])
+                for l in service_locators:
+                    m = re.match(".*//([^:/]+).*", l)
+                    if m is None:
+                        logging.debug("bad service locator: " + l)
+                    yield {
+                        "name": service_name,
+                        "hostname": m.group(1),
+                        "domains": groups
+                    }
 
 
 if __name__ == "__main__":

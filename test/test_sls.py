@@ -5,13 +5,21 @@ import responses
 from jsonschema import validate
 from perfsonar_data_helper import sls
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 MP_RESPONSE_SCHEMA = {
     "$schema": "http://json-schema.org/draft-06/schema#",
     "type": "array",
     "minItems": 1,
-    "items": {"type": "string"},
+    "items": {
+        "type": "object",
+        "properties": {
+            "hostname": {"type": "string"},
+            "name": {"type": "string"},
+            "domains": {"type": "array", "items": {"type": "string"}}
+        },
+        "required": ["hostname", "name", "domains"]
+    },
 }
 
 BOOTSTRAP_URL = "http://ps-west.es.net:8096/lookup/activehosts.json"
