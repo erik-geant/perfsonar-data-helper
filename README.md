@@ -130,6 +130,13 @@ The following resources can be requested from the webservice.
     {
       "$schema": "http://json-schema.org/draft-06/schema#",
       "type": "array",
-      "items": {"type": "string"},
+    "items": {
+        "type": "object",
+        "properties": {
+            "hostname": {"type": "string"},
+            "name": {"type": "string"},
+            "domains": {"type": "array", "items": {"type": "string"}}
+        },
+        "required": ["hostname", "name", "domains"]
     }
   ```
