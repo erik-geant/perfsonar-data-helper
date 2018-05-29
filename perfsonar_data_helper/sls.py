@@ -54,6 +54,16 @@ def update_cached_mps(bootstrap_url, cache_filename):
         f.write(json.dumps(load_services(bootstrap_url)))
 
 
+def hostname_from_url(url):
+    m = re.match('^(?P<scheme>http|https|tcp)://(?P<hostname>[^/]+).*', url)
+    if m is None:
+        return url
+    m1 = re.match('^(.*):[^\[\]:]+$', m.group("hostname"))
+    if m1:
+        return m1.group(1)
+    return m.group("hostname")
+
+
 def load_mps(tool, cache_filename):
 
     _tool_name_equivalencies = {
@@ -85,26 +95,13 @@ def load_mps(tool, cache_filename):
                     service_name = "???"
                 else:
                     service_name = service_names[0]
-                groups = s.get("group-domains", [])
+                communities = s.get("group-communities", [])
                 for l in service_locators:
-                    m = re.match(".*//([^:/]+).*", l)
-                    if m is None:
-                        logging.debug("bad service locator: " + l)
                     yield {
                         "name": service_name,
-                        "hostname": m.group(1),
-                        "domains": groups
+                        "hostname": hostname_from_url(l),
+                        "communities": communities
                     }
-
-
-def hostname_from_url(url):
-    m = re.match('^(?P<scheme>http|https|tcp)://(?P<hostname>[^/]+).*', url)
-    if m is None:
-        return url
-    m1 = re.match('^(.*):[^\[\]:]+$', m.group("hostname"))
-    if m1:
-        return m1.group(1)
-    return m.group("hostname")
 
 
 if __name__ == "__main__":

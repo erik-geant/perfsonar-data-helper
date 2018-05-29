@@ -135,8 +135,8 @@ The following resources can be requested from the webservice.
         "properties": {
             "hostname": {"type": "string"},
             "name": {"type": "string"},
-            "domains": {"type": "array", "items": {"type": "string"}}
+            "communities": {"type": "array", "items": {"type": "string"}}
         },
-        "required": ["hostname", "name", "domains"]
+        "required": ["hostname", "name", "communities"]
     }
   ```

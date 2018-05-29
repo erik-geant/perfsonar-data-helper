@@ -19,7 +19,7 @@ MP_RESPONSE_SCHEMA = {
             "name": {"type": "string"},
             "domains": {"type": "array", "items": {"type": "string"}}
         },
-        "required": ["hostname", "name", "domains"]
+        "required": ["hostname", "name", "communities"]
     },
 }
 
