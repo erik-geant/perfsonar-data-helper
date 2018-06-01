@@ -67,6 +67,6 @@ def mock_throughput_responses():
 @responses.activate
 def test_latency_delays():
     mock_throughput_responses()
-    data = throughput.get_throughput(SOURCE, DESTINATION, delay_seconds=-1)
+    data = throughput.get_throughput(SOURCE, DESTINATION, polling_interval=-1)
     logging.debug(data)
     validate(data, THROUGHPUT_RESPONSE_SCHEMA)

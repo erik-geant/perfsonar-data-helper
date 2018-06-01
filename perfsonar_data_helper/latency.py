@@ -4,7 +4,7 @@ import logging
 from perfsonar_data_helper.pscheduler import client
 
 
-def get_raw(source, destination, delay_seconds):
+def get_raw(source, destination, polling_interval):
 
     test_spec = {
         "source": source, 
@@ -26,7 +26,7 @@ def get_raw(source, destination, delay_seconds):
     task_url = client.create_task(source, test_data)
     task_result = client.get_task_result(
         task_url,
-        delay_seconds)
+        polling_interval)
 
     if "result" in task_result:
         return task_result["result"]["raw-packets"]
@@ -47,18 +47,21 @@ def get_delays_debug(source, destination):
         return json.loads(f.read())
 
 
-def get_delays(source, destination, delay_seconds=5):
+def get_delays(source, destination, polling_interval):
     exp = float(0x100000000)
     def _delta(x):
         rcv = float(x["dst-ts"])/exp
         snd = float(x["src-ts"])/exp
         return rcv-snd
-    return [_delta(x) for x in get_raw(source, destination, delay_seconds)]
+    return [_delta(x) for x in get_raw(source, destination, polling_interval)]
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     SOURCE = "perfsonar-nas.asnet.am"
     DESTINATION = "perfsonar-probe.ripe.net"
-    result = get_raw(source=SOURCE, destination=DESTINATION)
+    result = get_raw(
+        source=SOURCE,
+        destination=DESTINATION,
+        polling_interval=5)
     logging.debug(result)

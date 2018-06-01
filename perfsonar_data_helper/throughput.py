@@ -4,7 +4,7 @@ import logging
 from perfsonar_data_helper.pscheduler import client
 
 
-def get_raw(source, destination, delay_seconds):
+def get_raw(source, destination, polling_interval):
 
     test_spec = {
         "source": source, 
@@ -27,7 +27,7 @@ def get_raw(source, destination, delay_seconds):
     task_url = client.create_task(source, test_data)
     task_result = client.get_task_result(
         task_url,
-        delay_seconds)
+        polling_interval)
 
     if "result" in task_result:
         return task_result["result"]["intervals"]
@@ -37,19 +37,22 @@ def get_raw(source, destination, delay_seconds):
         assert False, "can't find result key in rsp" + str(task_result.keys())
 
 
-def get_throughput(source, destination, delay_seconds=5):
+def get_throughput(source, destination, polling_interval):
     def _rspelem(x):
         return {
             "start": x["summary"]["start"],
             "end": x["summary"]["end"],
             "bytes": x["summary"]["throughput-bytes"]
         }
-    return [_rspelem(x) for x in get_raw(source, destination, delay_seconds)]
+    return [_rspelem(x) for x in get_raw(source, destination, polling_interval)]
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     SOURCE = "psmall-b-3.basnet.by"
     DESTINATION = "psmall-b-2.basnet.by"
-    result = get_raw(source=SOURCE, destination=DESTINATION, delay_seconds=5)
+    result = get_raw(
+        source=SOURCE,
+        destination=DESTINATION,
+        polling_interval=5)
     logging.debug(result)

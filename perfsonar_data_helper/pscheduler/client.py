@@ -3,7 +3,7 @@ import time
 import requests
 
 
-def get_task_result(task_url, delay_seconds):
+def get_task_result(task_url, polling_interval):
     logging.debug("task result url: %s" % (task_url + "/runs/first"))
 
     while True:
@@ -19,8 +19,8 @@ def get_task_result(task_url, delay_seconds):
         if result["state"] == "finished":
 #            logging.debug("task result: " + json.dumps(result))
             return result
-        if delay_seconds > 0:
-            time.sleep(delay_seconds)
+        if polling_interval > 0:
+            time.sleep(polling_interval)
 
 
 def create_task(mp_hostname, task_data):
