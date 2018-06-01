@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import tempfile
@@ -92,6 +93,22 @@ def test_sls_mps():
         mps = sls.load_mps("owping", settings["SLS_CACHE_FILENAME"])
         validate(list(mps), MP_RESPONSE_SCHEMA)
 
+
+@responses.activate
+def test_throughput_http(client):
+    mock_sls_responses()
+    rv = client.get(
+        "/mplist/refresh",
+        # headers=api_request_headers
+    )
+    assert rv.status_code == 200
+
+    rv = client.get(
+        "/mplist/owping",
+        # headers=api_request_headers
+    )
+
+    validate(json.loads(rv.data.decode("utf-8")), MP_RESPONSE_SCHEMA)
 
 
 test_data = [

@@ -29,6 +29,7 @@ The configuration file is python.  The following is an example:
 SLS_BOOTSTRAP_URL = "http://ps-west.es.net:8096/lookup/activehosts.json"
 SLS_CACHE_FILENAME = "/tmp/sls-cache.json"
 STARTUP_REFRESH_SLS_CACHE = True
+PSCHEDULER_TASK_POLLING_INTERVAL_SECONDS = 5
 ```
 
 The following values are valid in the configuration file.
@@ -41,6 +42,9 @@ The following values are valid in the configuration file.
 
 - `STARTUP_REFRESH_SLS_CACHE`: refresh the sls cache when starting
  the server before accepting connections
+
+- `PSCHEDULER_TASK_POLLING_INTERVAL_SECONDS`: number of seconds to wait
+ between each request when polling for pscheduler task status
 
 
 ## running this module
