@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import responses
@@ -65,8 +66,19 @@ def mock_throughput_responses():
 
 
 @responses.activate
-def test_latency_delays():
+def test_throughput():
     mock_throughput_responses()
     data = throughput.get_throughput(SOURCE, DESTINATION, polling_interval=-1)
     logging.debug(data)
     validate(data, THROUGHPUT_RESPONSE_SCHEMA)
+
+
+@responses.activate
+def test_throughput_http(client):
+    mock_throughput_responses()
+    rv = client.get(
+        "/throughput/%s/%s" % (SOURCE, DESTINATION),
+        # headers=api_request_headers
+    )
+    assert rv.status_code == 200
+    validate(json.loads(rv.data.decode("utf-8")), THROUGHPUT_RESPONSE_SCHEMA)

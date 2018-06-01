@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import responses
@@ -68,3 +69,14 @@ def test_latency_delays():
     mock_latency_responses()
     delays = latency.get_delays(SOURCE, DESTINATION, polling_interval=-1)
     validate(delays, DELAY_RESPONSE_SCHEMA)
+
+
+@responses.activate
+def test_latency_delays_http(client):
+    mock_latency_responses()
+    rv = client.get(
+        "/latency/%s/%s" % (SOURCE, DESTINATION),
+        # headers=api_request_headers
+    )
+    assert rv.status_code == 200
+    validate(json.loads(rv.data.decode("utf-8")), DELAY_RESPONSE_SCHEMA)
