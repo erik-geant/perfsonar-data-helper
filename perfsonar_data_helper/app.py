@@ -12,6 +12,4 @@ if __name__ == "__main__":
         level=logging.DEBUG)
 
     app = perfsonar_data_helper.create_app()
-
-    import events, routes
     perfsonar_data_helper.socketio.run(app, host="0.0.0.0", port="9876")

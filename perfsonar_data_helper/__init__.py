@@ -17,11 +17,13 @@ def create_app():
     :return: a new flask app instance
     """
 
-    from perfsonar_data_helper import sls
-    from perfsonar_data_helper import routes
-
     app = Flask(__name__)
     CORS(app)
+    socketio.init_app(app)
+
+    from perfsonar_data_helper import sls
+    from perfsonar_data_helper import routes
+    from perfsonar_data_helper import events
 
     app.register_blueprint(routes.server)
 
@@ -39,7 +41,5 @@ def create_app():
         sls.update_cached_mps(
             bootstrap_url=app.config["SLS_BOOTSTRAP_URL"],
             cache_filename=app.config["SLS_CACHE_FILENAME"])
-
-    socketio.init_app(app)
 
     return app
