@@ -2,6 +2,7 @@ flask
 flask-cors
 requests
 requests-futures
+flask-socketio
 responses
 jsonschema
 pytest
