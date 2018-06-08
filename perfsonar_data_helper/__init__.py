@@ -25,7 +25,10 @@ def create_app():
     from perfsonar_data_helper import routes
     from perfsonar_data_helper import events
 
-    app.register_blueprint(routes.server)
+    from perfsonar_data_helper import example_routes
+
+    app.register_blueprint(routes.api)
+    app.register_blueprint(example_routes.examples)
 
     app.config.from_object("perfsonar_data_helper.default_settings")
     if "SETTINGS_FILENAME" in os.environ:
