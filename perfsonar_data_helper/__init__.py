@@ -5,8 +5,9 @@ import logging
 import os
 from flask import Flask
 from flask_cors import CORS
-from perfsonar_data_helper import sls
-from perfsonar_data_helper import routes
+from flask_socketio import SocketIO
+
+socketio = SocketIO()
 
 
 def create_app():
@@ -15,6 +16,10 @@ def create_app():
     SETTINGS_FILENAME
     :return: a new flask app instance
     """
+
+    from perfsonar_data_helper import sls
+    from perfsonar_data_helper import routes
+
     app = Flask(__name__)
     CORS(app)
 
@@ -34,5 +39,7 @@ def create_app():
         sls.update_cached_mps(
             bootstrap_url=app.config["SLS_BOOTSTRAP_URL"],
             cache_filename=app.config["SLS_CACHE_FILENAME"])
+
+    socketio.init_app(app)
 
     return app
