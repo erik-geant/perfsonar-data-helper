@@ -4,7 +4,7 @@ import logging
 from perfsonar_data_helper.pscheduler import client
 
 
-def get_raw(source, destination, polling_interval):
+def get_raw(source, destination, polling_interval, status_handler=None):
 
     test_spec = {
         "source": source, 
@@ -26,7 +26,8 @@ def get_raw(source, destination, polling_interval):
     task_url = client.create_task(source, test_data)
     task_result = client.get_task_result(
         task_url,
-        polling_interval)
+        polling_interval,
+        status_handler)
 
     if "result" in task_result:
         return task_result["result"]["raw-packets"]
@@ -47,13 +48,14 @@ def get_delays_debug(source, destination):
         return json.loads(f.read())
 
 
-def get_delays(source, destination, polling_interval):
+def get_delays(source, destination, polling_interval, status_handler=None):
     exp = float(0x100000000)
     def _delta(x):
         rcv = float(x["dst-ts"])/exp
         snd = float(x["src-ts"])/exp
         return rcv-snd
-    return [_delta(x) for x in get_raw(source, destination, polling_interval)]
+    return [_delta(x) for x in
+            get_raw(source, destination, polling_interval, status_handler)]
 
 
 if __name__ == "__main__":

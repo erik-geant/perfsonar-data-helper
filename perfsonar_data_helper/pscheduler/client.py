@@ -3,7 +3,7 @@ import time
 import requests
 
 
-def get_task_result(task_url, polling_interval):
+def get_task_result(task_url, polling_interval, status_handler):
     logging.debug("task result url: %s" % (task_url + "/runs/first"))
 
     while True:
@@ -15,6 +15,7 @@ def get_task_result(task_url, polling_interval):
         assert rsp.status_code == 200
         result = rsp.json()
         logging.debug("task state: %s" % result["state"])
+        status_handler(result["state"])
         assert result["state"] in {"pending", "on-deck", "running", "finished" }
         if result["state"] == "finished":
 #            logging.debug("task result: " + json.dumps(result))

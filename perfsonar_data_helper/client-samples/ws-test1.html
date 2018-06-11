@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+    font: 10px sans-serif;
+}
+
+.bar text {
+    shape-rendering: crispEdges;
+}
+
+.bar text {
+    fill: #999999;
+}
+
+.axis path, .axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+</style>
+
+<body>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+<script>
+
+
+//API_URL = "http://localhost:9876/latency/perfsonar-nas.asnet.am/perfsonar-probe.ripe.net";
+//API_URL = "http://snf-823052.vm.okeanos.grnet.gr:9876/latency/perfsonar-nas.asnet.am/perfsonar-probe.ripe.net"
+//API_URL = "http://35.204.75.246:9876/latency/perfsonar-nas.asnet.am/perfsonar-probe.ripe.net"
+//API_URL = "http://35.204.75.246:9876/latency/psmall-b-3.basnet.by/psmall-b-2.basnet.by"
+//API_URL = "http://" + document.domain + ":" + location.port + "/latency/psmall-b-3.basnet.by/psmall-b-2.basnet.by"
+SOURCE = "psmall-b-3.basnet.by";
+DESTINATION = "psmall-b-2.basnet.by";
+
+
+$(function() {
+    sock_address = "http://" + document.domain + ":" + location.port;
+
+    socket = io.connect(sock_address);
+
+    socket.on('status', function(data) {
+        console.log("received status event: " + data.status);
+    });
+
+    socket.on('complete', function(data) {
+        console.log("received complete success: " + data.success);
+        console.log("           ...  data: " + data.data);
+    });
+
+    socket.on('connect', function() {
+        console.log("received connect event");
+        socket.emit(
+            'measurement', {
+                'type': "latency",
+                'source': SOURCE,
+                'destination': DESTINATION
+            });
+     });
+});
+
+
+</script>
+</body>
