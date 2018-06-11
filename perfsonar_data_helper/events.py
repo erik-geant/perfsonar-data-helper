@@ -22,11 +22,6 @@ def _formatted_time():
 
 from flask import request
 
-import threading
-
-def _measurement_thread(sid):
-
-
 @socketio.on('measurement')
 def handle_message(message):
 
