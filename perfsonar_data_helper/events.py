@@ -22,37 +22,36 @@ def _formatted_time():
 
 from flask import request
 
-@socketio.on('measurement')
-def handle_message(message):
+import threading
 
-
-    logging.debug("request.sid: %r" % request.sid)
+def _measurement_thread(sid, measurement, polling_interval):
 
     def _emit_status(status_message):
         logging.debug("socket status message: %r" % status_message)
-        emit("status", {
+        socketio.emit("status", {
             "status": status_message,
             "time": _formatted_time()
-        })
+        },
+                      room=sid)
         # socketio.sleep(0)
         eventlet.sleep(0)
 
-    if message["type"] == "latency":
+    if measurement["type"] == "latency":
         result = {
             "successful": True,
             "data": latency.get_delays(
-                source=message["source"],
-                destination=message["destination"],
-                polling_interval=current_app.config["PSCHEDULER_TASK_POLLING_INTERVAL_SECONDS"],
+                source=measurement["source"],
+                destination=measurement["destination"],
+                polling_interval=polling_interval,
                 status_handler=_emit_status)
         }
-    elif message["type"] == "throughput":
+    elif measurement["type"] == "throughput":
         result = {
             "successful": True,
             "data": throughput.get_throughput(
-                source=message["source"],
-                destination=message["destination"],
-                polling_interval=current_app.config["PSCHEDULER_TASK_POLLING_INTERVAL_SECONDS"],
+                source=measurement["source"],
+                destination=measurement["destination"],
+                polling_interval=polling_interval,
                 status_handler=_emit_status)
         }
     else:
@@ -62,4 +61,16 @@ def handle_message(message):
 
     logging.debug("task successful, return result: %r" % result)
     result["time"] = _formatted_time()
-    emit("complete", result)
+    socketio.emit("complete", result, room=sid)
+
+
+@socketio.on('measurement')
+def handle_message(message):
+    logging.debug("request.sid: %r" % request.sid)
+    emit("status", {
+            "status": "setup...",
+            "time": _formatted_time()
+        })
+    threading.Thread(
+        target=_measurement_thread,
+        args=(request.sid, message, current_app.config["PSCHEDULER_TASK_POLLING_INTERVAL_SECONDS"])).start()
