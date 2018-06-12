@@ -22,7 +22,8 @@ def _formatted_time():
 
 from flask import request
 
-import threading
+from eventlet import tpool
+
 
 def _measurement_thread(sid, measurement, polling_interval):
 
@@ -71,6 +72,9 @@ def handle_message(message):
             "status": "setup...",
             "time": _formatted_time()
         })
-    threading.Thread(
-        target=_measurement_thread,
-        args=(request.sid, message, current_app.config["PSCHEDULER_TASK_POLLING_INTERVAL_SECONDS"])).start()
+
+    tpool.execute(
+        _measurement_thread,
+        request.sid,
+        message,
+        current_app.config["PSCHEDULER_TASK_POLLING_INTERVAL_SECONDS"])
