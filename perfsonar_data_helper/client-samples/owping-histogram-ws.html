@@ -25,18 +25,22 @@ body {
 <script src="https://d3js.org/d3.v5.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
-
-<div id="status">uninitialized status</div><br/>
+Status: <div id="status">None</div><br/>
 <div id="response" style="display: none;">????</div>
-
+</body>
 <script>
+
 
 MARGIN = ({top: 20, right: 20, bottom: 30, left: 40});
 HEIGHT = 500;
 WIDTH = 1000;
 //num_bins = 40;
 NUM_BINS = 10;
-var COLOR = "steelblue";
+COLOR = "steelblue";
+
+SOURCE = "psmall-b-3.basnet.by";
+DESTINATION = "psmall-b-2.basnet.by";
+
 
 var formatCount = d3.format(",.0f");
 var formatTime = d3.format(",.1f");
@@ -103,7 +107,7 @@ function diagram(values) {
         .attr("x", (x(bins[0].x1) - x(bins[0].x0)) / 2)
         .attr("text-anchor", "middle")
         .text(d => barText(d));
-       
+
     svg
     .selectAll("rect")
     .data(bins)
@@ -166,7 +170,7 @@ function refresh(values) {
         .range([HEIGHT - MARGIN.bottom, MARGIN.top]);
 
     var bar = svg.selectAll(".bar").data(bins);
-    
+
     // remove object with data
     bar.exit().remove();
 
@@ -187,66 +191,80 @@ function refresh(values) {
 }
 
 
-//API_URL = "http://localhost:9876/latency/perfsonar-nas.asnet.am/perfsonar-probe.ripe.net";
-//API_URL = "http://snf-823052.vm.okeanos.grnet.gr:9876/latency/perfsonar-nas.asnet.am/perfsonar-probe.ripe.net"
-//API_URL = "http://35.204.75.246:9876/latency/perfsonar-nas.asnet.am/perfsonar-probe.ripe.net"
-//API_URL = "http://35.204.75.246:9876/latency/psmall-b-3.basnet.by/psmall-b-2.basnet.by"
-//API_URL = "http://" + document.domain + ":" + location.port + "/latency/psmall-b-3.basnet.by/psmall-b-2.basnet.by"
-SOURCE = "psmall-b-3.basnet.by";
-DESTINATION = "psmall-b-2.basnet.by";
 
-
-function reload_data() {
-
-    d3.json(API_URL)
-        .then(function(d) {
-            const dd = d.map(x => x*1000.0);
-            refresh(dd);
-            reload_data();
-        });
-}
-
-function start_task(url) {
-    d3.json(ur)
-        .then(function(d) {
-            const dd = d.map(x => x*1000.0);
-            dd.y = "packets";
-            dd.x = "latency (ms)";
-            diagram(dd);
-            reload_data();
-        });
-}
-
-</script>
-</body>
-<script>
-
-var socket;  // should not be function-level scope
-
+var socket;
 sock_address = "http://" + document.domain + ":" + location.port;
-
 socket = io.connect(sock_address);
+var measurement_data_handler = null;
+var statusIntervalId = null;
 
-socket.on('status', function(data) {
-    $('#status').text("received status event: " + data.status);
-    console.log("received status event: " + data.status);
-});
+function reload_diagram(d) {
+    const dd = d.map(x => x*1000.0);
+    refresh(dd);
+    console.log("refresh complete ... launching another measurement");
+    do_measurement(reload_diagram);
+}
 
-socket.on('complete', function(data) {
-    $('#status').text("received complete event: " + data.successful);
-    console.log("received complete success: " + data.successful);
-    console.log("           ...  data: " + data.data);
-    console.log("           ...  " + data);
-});
+function draw_diagram(d) {
+    const dd = d.map(x => x*1000.0);
+    dd.y = "packets";
+    dd.x = "latency (ms)";
+    diagram(dd);
+    console.log("initial diagram complete ... launching another measurement");
+    do_measurement(reload_diagram);
+}
 
-socket.on('connect', function() {
-    console.log("received connect event");
+
+function do_measurement(handler) {
+    // save for use 'complete' handler
+    measurement_data_handler = handler;
+    console.log("EMITTING measurement");
     socket.emit(
         'measurement', {
             'type': "latency",
             'source': SOURCE,
             'destination': DESTINATION
         });
- });
+}
+
+socket.on('status', function(data) {
+    $('#status').text(data.message + " [" + data.time + "]");
+    console.log("received status event: " + data.message + " [" + data.time + "]");
+
+    // js bug?
+    // callback is called after the timeout once
+    // for each call to setTimeout ...?
+    // ... at least in chrome, thus the clearTimeout behavior
+    if (statusIntervalId != null) {
+        clearTimeout(statusIntervalId);
+    }
+    statusIntervalId = setTimeout(function() {
+            console.log("EMITTING get-status");
+            socket.emit("get-status");
+        }, 5000)
+});
+
+socket.on('error', function(data) {
+    $('#status').text("error: " +  data.message + " [" + data.time + "]");
+    console.log("received error event: " + data.message + " [" + data.time + "]");
+});
+
+socket.on('complete', function(data) {
+//    $('#status').text("received complete event: " + data.time);
+    console.log("received complete event: " + data.data);
+//        socket.close()
+    if (measurement_data_handler != null) {
+        // todo: race condition here
+        data_handler_tmp = measurement_data_handler;
+        measurement_data_handler = null;
+        setTimeout(function() { data_handler_tmp(data.data); }, 0);
+    }
+});
+
+socket.on('connect', function() {
+    console.log("received connect event");
+    // launch initial measurement
+    do_measurement(draw_diagram);
+});
 
 </script>
