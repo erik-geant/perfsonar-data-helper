@@ -224,7 +224,7 @@ function start_task(url) {
 var socket;
 sock_address = "http://" + document.domain + ":" + location.port;
 socket = io.connect(sock_address);
-var measurement_data_handler;
+var measurement_data_handler = null;
 
 function reload_diagram(d) {
     const dd = d.map(x => x*1000.0);
@@ -255,10 +255,21 @@ function do_measurement(handler) {
         });
 }
 
+var statusIntervalId = null;
+
 socket.on('status', function(data) {
     $('#status').text("received status event: " + data.message);
     console.log("received status event: " + data.message + " [" + data.time + "]");
-    setTimeout(function() {
+
+
+    // js bug?
+    // callback is called after the timeout once
+    // for each call to setTimeout ...?
+    // ... at least in chrome, thus the clearTimeout behavior
+    if (statusIntervalId != null) {
+        clearTimeout(statusIntervalId);
+    }
+    statusIntervalId = setTimeout(function() {
             console.log("EMITTING get-status");
             socket.emit("get-status");
         }, 5000)
@@ -273,7 +284,12 @@ socket.on('complete', function(data) {
     $('#status').text("received complete event: " + data.time);
     console.log("received complete event: " + data.data);
 //        socket.close()
-    setTimeout(function() { measurement_data_handler(data.data); }, 0);
+    if (measurement_data_handler != null) {
+        // todo: race condition here
+        data_handler_tmp = measurement_data_handler;
+        measurement_data_handler = null;
+        setTimeout(function() { data_handler_tmp(data.data); }, 0);
+    }
 });
 
 socket.on('connect', function() {
