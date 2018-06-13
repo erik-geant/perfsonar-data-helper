@@ -207,7 +207,7 @@ function reload_data() {
 }
 
 function start_task(url) {
-    d3.json(ur)
+    d3.json(url)
         .then(function(d) {
             const dd = d.map(x => x*1000.0);
             dd.y = "packets";
@@ -221,32 +221,67 @@ function start_task(url) {
 </body>
 <script>
 
-var socket;  // should not be function-level scope
-
+var socket;
 sock_address = "http://" + document.domain + ":" + location.port;
-
 socket = io.connect(sock_address);
+var measurement_data_handler;
 
-socket.on('status', function(data) {
-    $('#status').text("received status event: " + data.status);
-    console.log("received status event: " + data.status);
-});
+function reload_diagram(d) {
+    const dd = d.map(x => x*1000.0);
+    refresh(dd);
+    console.log("refresh complete ... launching another measurement");
+    do_measurement(reload_diagram);
+}
 
-socket.on('complete', function(data) {
-    $('#status').text("received complete event: " + data.successful);
-    console.log("received complete success: " + data.successful);
-    console.log("           ...  data: " + data.data);
-    console.log("           ...  " + data);
-});
+function draw_diagram(d) {
+    const dd = d.map(x => x*1000.0);
+    dd.y = "packets";
+    dd.x = "latency (ms)";
+    diagram(dd);
+    console.log("initial diagram complete ... launching another measurement");
+    do_measurement(reload_diagram);
+}
 
-socket.on('connect', function() {
-    console.log("received connect event");
+
+function do_measurement(handler) {
+    // save for use 'complete' handler
+    measurement_data_handler = handler;
+    console.log("EMITTING measurement");
     socket.emit(
         'measurement', {
             'type': "latency",
             'source': SOURCE,
             'destination': DESTINATION
         });
- });
+}
+
+socket.on('status', function(data) {
+    $('#status').text("received status event: " + data.message);
+    console.log("received status event: " + data.message + " [" + data.time + "]");
+    setTimeout(function() {
+            console.log("EMITTING get-status");
+            socket.emit("get-status");
+        }, 5000)
+});
+
+socket.on('error', function(data) {
+    $('#status').text("received error event: " + data.message);
+    console.log("received error event: " + data.message + " [" + data.time + "]");
+});
+
+socket.on('complete', function(data) {
+    $('#status').text("received complete event: " + data.time);
+    console.log("received complete event: " + data.data);
+//        socket.close()
+    setTimeout(function() { measurement_data_handler(data.data); }, 0);
+});
+
+socket.on('connect', function() {
+    console.log("received connect event");
+    // launch initial measurement
+    do_measurement(draw_diagram);
+});
+
+
 
 </script>
