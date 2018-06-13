@@ -25,18 +25,22 @@ body {
 <script src="https://d3js.org/d3.v5.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
-
-<div id="status">uninitialized status</div><br/>
+Status: <div id="status">None</div><br/>
 <div id="response" style="display: none;">????</div>
-
+</body>
 <script>
+
 
 MARGIN = ({top: 20, right: 20, bottom: 30, left: 40});
 HEIGHT = 500;
 WIDTH = 1000;
 //num_bins = 40;
 NUM_BINS = 10;
-var COLOR = "steelblue";
+COLOR = "steelblue";
+
+SOURCE = "psmall-b-3.basnet.by";
+DESTINATION = "psmall-b-2.basnet.by";
+
 
 var formatCount = d3.format(",.0f");
 var formatTime = d3.format(",.1f");
@@ -103,7 +107,7 @@ function diagram(values) {
         .attr("x", (x(bins[0].x1) - x(bins[0].x0)) / 2)
         .attr("text-anchor", "middle")
         .text(d => barText(d));
-       
+
     svg
     .selectAll("rect")
     .data(bins)
@@ -166,7 +170,7 @@ function refresh(values) {
         .range([HEIGHT - MARGIN.bottom, MARGIN.top]);
 
     var bar = svg.selectAll(".bar").data(bins);
-    
+
     // remove object with data
     bar.exit().remove();
 
@@ -187,44 +191,12 @@ function refresh(values) {
 }
 
 
-//API_URL = "http://localhost:9876/latency/perfsonar-nas.asnet.am/perfsonar-probe.ripe.net";
-//API_URL = "http://snf-823052.vm.okeanos.grnet.gr:9876/latency/perfsonar-nas.asnet.am/perfsonar-probe.ripe.net"
-//API_URL = "http://35.204.75.246:9876/latency/perfsonar-nas.asnet.am/perfsonar-probe.ripe.net"
-//API_URL = "http://35.204.75.246:9876/latency/psmall-b-3.basnet.by/psmall-b-2.basnet.by"
-//API_URL = "http://" + document.domain + ":" + location.port + "/latency/psmall-b-3.basnet.by/psmall-b-2.basnet.by"
-SOURCE = "psmall-b-3.basnet.by";
-DESTINATION = "psmall-b-2.basnet.by";
-
-
-function reload_data() {
-
-    d3.json(API_URL)
-        .then(function(d) {
-            const dd = d.map(x => x*1000.0);
-            refresh(dd);
-            reload_data();
-        });
-}
-
-function start_task(url) {
-    d3.json(url)
-        .then(function(d) {
-            const dd = d.map(x => x*1000.0);
-            dd.y = "packets";
-            dd.x = "latency (ms)";
-            diagram(dd);
-            reload_data();
-        });
-}
-
-</script>
-</body>
-<script>
 
 var socket;
 sock_address = "http://" + document.domain + ":" + location.port;
 socket = io.connect(sock_address);
 var measurement_data_handler = null;
+var statusIntervalId = null;
 
 function reload_diagram(d) {
     const dd = d.map(x => x*1000.0);
@@ -255,12 +227,9 @@ function do_measurement(handler) {
         });
 }
 
-var statusIntervalId = null;
-
 socket.on('status', function(data) {
-    $('#status').text("received status event: " + data.message);
+    $('#status').text(data.message + " [" + data.time + "]");
     console.log("received status event: " + data.message + " [" + data.time + "]");
-
 
     // js bug?
     // callback is called after the timeout once
@@ -276,12 +245,12 @@ socket.on('status', function(data) {
 });
 
 socket.on('error', function(data) {
-    $('#status').text("received error event: " + data.message);
+    $('#status').text("error: " +  data.message + " [" + data.time + "]");
     console.log("received error event: " + data.message + " [" + data.time + "]");
 });
 
 socket.on('complete', function(data) {
-    $('#status').text("received complete event: " + data.time);
+//    $('#status').text("received complete event: " + data.time);
     console.log("received complete event: " + data.data);
 //        socket.close()
     if (measurement_data_handler != null) {
@@ -297,7 +266,5 @@ socket.on('connect', function() {
     // launch initial measurement
     do_measurement(draw_diagram);
 });
-
-
 
 </script>
