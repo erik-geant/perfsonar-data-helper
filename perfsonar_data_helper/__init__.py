@@ -22,12 +22,12 @@ def create_app():
     socketio.init_app(app)
 
     from perfsonar_data_helper import sls
-    from perfsonar_data_helper import routes
+    from perfsonar_data_helper import simple
     from perfsonar_data_helper import events
 
     from perfsonar_data_helper import example_routes
 
-    app.register_blueprint(routes.api)
+    app.register_blueprint(simple.api)
     app.register_blueprint(example_routes.examples)
 
     app.config.from_object("perfsonar_data_helper.default_settings")

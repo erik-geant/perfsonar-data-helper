@@ -4,7 +4,7 @@ from perfsonar_data_helper import latency
 from perfsonar_data_helper import throughput
 from perfsonar_data_helper import sls
 
-api = Blueprint("measurement-routes", __name__)
+api = Blueprint("rest-routes", __name__)
 
 
 @api.route("/latency/<string:source>/<string:destination>")
