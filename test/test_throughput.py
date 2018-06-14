@@ -66,14 +66,6 @@ def mock_throughput_responses():
 
 
 @responses.activate
-def test_throughput():
-    mock_throughput_responses()
-    data = throughput.get_throughput(SOURCE, DESTINATION, polling_interval=-1)
-    logging.debug(data)
-    validate(data, THROUGHPUT_RESPONSE_SCHEMA)
-
-
-@responses.activate
 def test_throughput_http(client):
     mock_throughput_responses()
     rv = client.get(

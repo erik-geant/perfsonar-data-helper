@@ -9,8 +9,6 @@ from perfsonar_data_helper import sls
 from perfsonar_data_helper.pscheduler import client as pscheduler_client
 
 
-TASK_STATUS_POLLING_FREQUENCY_SECONDS = 2
-
 api = Blueprint("simple-routes", __name__)
 
 
@@ -49,7 +47,7 @@ def _run_measurement(mp, test_data):
             logging.error("unknown state: %r ... ending measurement")
             raise APIError("received an unknown task state: %r" % state)
 
-        time.sleep(TASK_STATUS_POLLING_FREQUENCY_SECONDS)
+        time.sleep(current_app.config["PSCHEDULER_TASK_POLLING_INTERVAL_SECONDS"])
 
 
 @api.route("/latency/<string:source>/<string:destination>")

@@ -15,7 +15,7 @@ def app_config():
 
             # f.write("STARTUP_REFRESH_SLS_CACHE = True\n")
             f.write("STARTUP_REFRESH_SLS_CACHE = False\n")
-            f.write("PSCHEDULER_TASK_POLLING_INTERVAL_SECONDS = -1\n")
+            f.write("PSCHEDULER_TASK_POLLING_INTERVAL_SECONDS = 0\n")
         yield settings_filename
 
 @pytest.fixture
