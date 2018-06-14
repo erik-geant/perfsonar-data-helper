@@ -58,10 +58,9 @@ def latency_measurement(source, destination):
 
 @api.route("/throughput/<string:source>/<string:destination>")
 def throughput_measurement(source, destination):
-    return jsonify(throughput.get_throughput(
-        source=source,
-        destination=destination,
-        polling_interval=current_app.config["PSCHEDULER_TASK_POLLING_INTERVAL_SECONDS"]))
+    test_data = throughput.make_test_data(source, destination)
+    result = _run_measurement(source, test_data)
+    return jsonify(throughput.format_result(result))
 
 
 @api.route("/mplist/<string:tool>")
