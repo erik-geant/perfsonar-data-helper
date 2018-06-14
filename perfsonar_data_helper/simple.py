@@ -1,4 +1,5 @@
 import logging
+import time
 
 from flask import Blueprint, current_app, jsonify, Response
 
@@ -47,6 +48,8 @@ def _run_measurement(mp, test_data):
         if state not in ["pending", "on-deck", "running"]:
             logging.error("unknown state: %r ... ending measurement")
             raise APIError("received an unknown task state: %r" % state)
+
+        time.sleep(TASK_STATUS_POLLING_FREQUENCY_SECONDS)
 
 
 @api.route("/latency/<string:source>/<string:destination>")
