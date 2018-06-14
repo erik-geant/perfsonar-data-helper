@@ -31,19 +31,19 @@ def _formatted_time():
 
 
 def status_response(message):
-    return Response(json.dumps({
-            "type": "status",
-            "message": message,
-            "time": _formatted_time()
-        }), mimetype="application/json")
+    return {
+        "type": "status",
+        "message": message,
+        "time": _formatted_time()
+    }
 
 
 def result_response(data):
-    return Response(json.dumps({
-            "type": "complete",
-            "data": data,
-            "time": _formatted_time()
-        }), mimetype="application/json")
+    return {
+        "type": "complete",
+        "data": data,
+        "time": _formatted_time()
+    }
 
 
 @api.errorhandler(APIError)
@@ -81,7 +81,7 @@ def pscheduler_measurement():
     session["type"] = payload["type"]
     # session.modified = True
 
-    return status_response("scheduled")
+    return jsonify(status_response("scheduled"))
 
 
 @api.route("/pscheduler/status", methods=['GET', 'POST'])
@@ -96,7 +96,7 @@ def pscheduler_status():
     logging.debug("task state: %r" % state)
 
     if result is None:
-        return status_response(state)
+        return jsonify(status_response(state))
 
     if session["type"] == "latency":
         data = latency.format_result(result)
@@ -105,4 +105,4 @@ def pscheduler_status():
 
     logging.debug("task complete")
 
-    return result_response(data)
+    return jsonify(result_response(data))
