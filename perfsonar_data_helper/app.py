@@ -12,4 +12,4 @@ if __name__ == "__main__":
         level=logging.DEBUG)
 
     app = perfsonar_data_helper.create_app()
-    perfsonar_data_helper.socketio.run(app, host="0.0.0.0", port="9876")
+    app.run(host="0.0.0.0", port="9876")

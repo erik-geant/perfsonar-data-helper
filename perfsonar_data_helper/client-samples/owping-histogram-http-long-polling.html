@@ -247,14 +247,21 @@ function launch_measurement() {
                 source: SOURCE,
                 destination: DESTINATION
             }),
-            headers: { "Content-type": "application/json; charset=UTF-8" }
+            headers: { "Content-type": "application/json; charset=UTF-8" },
+            // cookies aren't used by default, this enables them
+            // use "include" for cross-origin requests
+            credentials: "same-origin"
         })
         .then(handle_response);
 }
 
 
 function get_status() {
-    d3.json(server_base_url + "status")
+    d3.json(server_base_url + "status", {
+            // cookies aren't used by default, this enables them
+            // use "include" for cross-origin requests
+            credentials: "same-origin"
+        })
         .then(handle_response);
 }
 

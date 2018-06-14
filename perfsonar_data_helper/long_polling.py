@@ -5,6 +5,7 @@ import time
 
 from flask import Blueprint, current_app, jsonify, session, request, Response
 
+
 from perfsonar_data_helper import latency
 from perfsonar_data_helper import throughput
 from perfsonar_data_helper.pscheduler import client as pscheduler_client
@@ -78,6 +79,7 @@ def pscheduler_measurement():
 
     session["task_url"] = task_url
     session["type"] = payload["type"]
+    # session.modified = True
 
     return status_response("scheduled")
 
