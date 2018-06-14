@@ -217,7 +217,7 @@ function handle_response(response) {
         $('#status').text(response.message + " [" + response.time + "]");
         console.log("received status event: " + response.message + " [" + response.time + "]");
 
-        if (["pending", "on-deck", "running"].indexOf(response.message) < 0) {
+        if (["pending", "on-deck", "running", "scheduled"].indexOf(response.message) < 0) {
             // some sort of error ... restart another measurement
             if (measurementIntervalId != null) {
                 clearTimeout(measurementIntervalId);
@@ -236,6 +236,7 @@ function handle_response(response) {
         statusIntervalId = setTimeout(get_status, 5000);
     }
     else if (response.type == "complete") {
+        $('#status').text("received [" + response.time + "]");
         draw_diagram_handler(response.data);
         draw_diagram_handler = reload_diagram;
 
