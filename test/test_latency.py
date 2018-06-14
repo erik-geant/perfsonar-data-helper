@@ -65,13 +65,6 @@ def mock_latency_responses():
 
 
 @responses.activate
-def test_latency_delays():
-    mock_latency_responses()
-    delays = latency.get_delays(SOURCE, DESTINATION, polling_interval=-1)
-    validate(delays, DELAY_RESPONSE_SCHEMA)
-
-
-@responses.activate
 def test_latency_delays_http(client):
     mock_latency_responses()
     rv = client.get(

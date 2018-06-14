@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<link href="default.css" rel="stylesheet" type="text/css">
+<body>
+Status: <div id="status">None</div><br/>
+<div id="response" style="display: none;">????</div>
+</body>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript" src="latency-histogram.js"></script>
+<script type="text/javascript" src="long-polling.js"></script>
+<script>
+
+SOURCE = "psmall-b-3.basnet.by";
+DESTINATION = "psmall-b-2.basnet.by";
+
+launch_long_polling_measurement({
+    type: "latency",
+    source: SOURCE,
+    destination: DESTINATION
+});
+
+</script>

@@ -11,4 +11,5 @@ if __name__ == "__main__":
         stream=sys.stderr,
         level=logging.DEBUG)
 
-    perfsonar_data_helper.create_app().run(host="0.0.0.0", port="9876")
+    app = perfsonar_data_helper.create_app()
+    app.run(host="0.0.0.0", port="9876")
