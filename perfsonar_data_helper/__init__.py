@@ -25,7 +25,6 @@ def create_app():
     from perfsonar_data_helper import sls
     from perfsonar_data_helper import simple
     from perfsonar_data_helper import long_polling
-    from perfsonar_data_helper import events
 
     from perfsonar_data_helper import example_routes
 
