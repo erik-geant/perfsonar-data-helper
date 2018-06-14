@@ -18,7 +18,7 @@ def get_task_status(task_url):
     task_status = rsp.json()
     logging.debug("task state: %s" % task_status["state"])
     if task_status["state"] not in {"pending", "on-deck", "running", "finished"}:
-        raise PSchedulerError("unrecognized task state: " + task_status["state"])
+        logging.warning("unusual task state: " + task_status["state"])
 
     result_data = None
     if task_status["state"] == "finished":

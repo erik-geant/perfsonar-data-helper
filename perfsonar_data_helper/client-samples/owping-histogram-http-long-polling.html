@@ -217,6 +217,15 @@ function handle_response(response) {
         $('#status').text(response.message + " [" + response.time + "]");
         console.log("received status event: " + response.message + " [" + response.time + "]");
 
+        if (["pending", "on-deck", "running"].indexOf(response.message) < 0) {
+            // some sort of error ... restart another measurement
+            if (measurementIntervalId != null) {
+                clearTimeout(measurementIntervalId);
+            }
+            measurementIntervalId = setTimeout(launch_measurement, 0);
+            return;
+        }
+
         // js bug?
         // callback is called after the timeout once
         // for each call to setTimeout ...?
