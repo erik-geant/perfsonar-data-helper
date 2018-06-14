@@ -1,18 +1,59 @@
-from flask import Blueprint, current_app, jsonify
+import logging
+
+from flask import Blueprint, current_app, jsonify, Response
 
 from perfsonar_data_helper import latency
 from perfsonar_data_helper import throughput
 from perfsonar_data_helper import sls
+from perfsonar_data_helper.pscheduler import client as pscheduler_client
 
-api = Blueprint("rest-routes", __name__)
+
+TASK_STATUS_POLLING_FREQUENCY_SECONDS = 2
+
+api = Blueprint("simple-routes", __name__)
+
+
+class APIError(Exception):
+    status_code = 415
+
+    def __init__(self, message, status_code=None):
+        super().__init__(self)
+        self.message = message
+        if status_code is not None:
+            self.status_code = status_code
+
+
+@api.errorhandler(APIError)
+def handle_api_error(error):
+    return Response(response=error.message, status=error.status_code)
+
+
+@api.errorhandler(pscheduler_client.PSchedulerError)
+def handle_pscheduler_error(error):
+    return Response(response=error.message, status=error.status_code)
+
+
+def _run_measurement(mp, test_data):
+    logging.debug("creating task, mp: %r, test data: %r" % (mp, test_data))
+    task_url = pscheduler_client.create_task(mp, test_data)
+    while True:
+        state, result = pscheduler_client.get_task_status(task_url)
+        logging.debug("task state: %r" % state)
+
+        if result:
+            logging.debug("task complete")
+            return result
+
+        if state not in ["pending", "on-deck", "running"]:
+            logging.error("unknown state: %r ... ending measurement")
+            raise APIError("received an unknown task state: %r" % state)
 
 
 @api.route("/latency/<string:source>/<string:destination>")
 def latency_measurement(source, destination):
-    return jsonify(latency.get_delays(
-        source=source,
-        destination=destination,
-        polling_interval=current_app.config["PSCHEDULER_TASK_POLLING_INTERVAL_SECONDS"]))
+    test_data = latency.make_test_data(source, destination)
+    result = _run_measurement(source, test_data)
+    return jsonify(latency.format_result(result))
 
 
 @api.route("/throughput/<string:source>/<string:destination>")

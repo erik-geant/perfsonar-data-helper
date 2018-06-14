@@ -51,6 +51,11 @@ def handle_api_error(error):
     return Response(response=error.message, status=error.status_code)
 
 
+@api.errorhandler(pscheduler_client.PSchedulerError)
+def handle_pscheduler_error(error):
+    return Response(response=error.message, status=error.status_code)
+
+
 @api.route("/pscheduler/measurement", methods=['POST'])
 def pscheduler_measurement():
 
@@ -79,7 +84,6 @@ def pscheduler_measurement():
 
     session["task_url"] = task_url
     session["type"] = payload["type"]
-    # session.modified = True
 
     return jsonify(status_response("scheduled"))
 
