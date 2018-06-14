@@ -72,7 +72,9 @@ def pscheduler_measurement():
             payload["source"],
             payload["destination"])
     elif payload["type"] == "throughput":
-        raise APIError("to do: measurement type 'throughput'")
+        test_data = throughput.make_test_data(
+            payload["source"],
+            payload["destination"])
     else:
         raise APIError("bad measurement type")
 
@@ -104,6 +106,8 @@ def pscheduler_status():
 
     if session["type"] == "latency":
         data = latency.format_result(result)
+    elif session["type"] == "throughput":
+        data = throughput.format_result(result)
     else:
         assert False  # sanity (should have already been checked)
 
