@@ -5,6 +5,10 @@ var draw_diagram_handler = draw_diagram;
 var statusIntervalId = null;
 var measurementIntervalId = null;
 var session_params = null;
+var server_base_url = "http://" + document.domain + ":" + location.port + "/pscheduler/";
+
+
+
 
 function handle_response(response) {
     if (response.type == "status") {
@@ -62,7 +66,6 @@ function launch_long_polling_measurement(params) {
         })
         .then(handle_response);
 }
-
 
 function get_status() {
     d3.json(server_base_url + "status", {

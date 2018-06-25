@@ -1,13 +1,16 @@
 
-
 MARGIN = ({top: 20, right: 20, bottom: 30, left: 40});
-HEIGHT = 500;
-WIDTH = 1000;
-//num_bins = 40;
 NUM_BINS = 10;
 COLOR = "steelblue";
 
 
+var svg = d3.select("svg");
+
+WIDTH = svg.attr("width") - MARGIN.left - MARGIN.right;
+HEIGHT = svg.attr("height") - MARGIN.top - MARGIN.bottom;
+
+svg.append("g")
+    .attr("transform", "translate(" + MARGIN.left + "," + MARGIN.top + ")")
 
 var formatCount = d3.format(",.0f");
 var formatTime = d3.format(",.1f");
@@ -23,13 +26,7 @@ function barText(bar) {
     return bar.length ? formatCount(bar.length) : "";
 }
 
-var svg = d3.select("body").append("svg")
-    .attr("width", WIDTH + MARGIN.left + MARGIN.right)
-    .attr("height", HEIGHT + MARGIN.top + MARGIN.bottom)
-  .append("g")
-    .attr("transform", "translate(" + MARGIN.left + "," + MARGIN.top + ")")
 
-var x;
 
 function diagram(values) {
 
@@ -156,8 +153,6 @@ function refresh(values) {
         .duration(1000)
         .text(d => barText(d));
 }
-
-server_base_url = "http://" + document.domain + ":" + location.port + "/pscheduler/";
 
 function reload_diagram(d) {
     const dd = d.map(x => x*1000.0);
