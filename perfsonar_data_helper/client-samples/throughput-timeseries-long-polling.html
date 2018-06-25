@@ -8,17 +8,15 @@ Status: <div id="status">None</div><br/>
 </body>
 <script src="https://d3js.org/d3.v5.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script type="text/javascript" src="latency-histogram.js"></script>
+<script type="text/javascript" src="throughput-timeseries.js"></script>
 <script type="text/javascript" src="long-polling.js"></script>
 <script>
+    SOURCE = "psmall-b-3.basnet.by";
+    DESTINATION = "psmall-b-2.basnet.by";
 
-SOURCE = "psmall-b-3.basnet.by";
-DESTINATION = "psmall-b-2.basnet.by";
-
-launch_long_polling_measurement({
-    type: "latency",
-    source: SOURCE,
-    destination: DESTINATION
-});
-
+    launch_long_polling_measurement({
+        type: "throughput",
+        source: SOURCE,
+        destination: DESTINATION
+    });
 </script>

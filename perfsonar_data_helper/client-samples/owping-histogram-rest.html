@@ -2,6 +2,8 @@
 <meta charset="utf-8">
 <link href="default.css" rel="stylesheet" type="text/css">
 <body>
+<svg width="960" height="500"></svg>
+</body>
 <script src="https://d3js.org/d3.v5.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script type="text/javascript" src="latency-histogram.js"></script>
@@ -12,8 +14,6 @@
 //API_URL = "http://snf-823052.vm.okeanos.grnet.gr:9876/latency/perfsonar-nas.asnet.am/perfsonar-probe.ripe.net"
 //API_URL = "http://35.204.75.246:9876/latency/perfsonar-nas.asnet.am/perfsonar-probe.ripe.net"
 //API_URL = "http://35.204.75.246:9876/latency/psmall-b-3.basnet.by/psmall-b-2.basnet.by"
-
-
 
 BASE_API_URL = "http://" + document.domain + ":" + location.port + "/latency/"
 
@@ -41,6 +41,3 @@ d3.json(api_url)
     });
 
 </script>
-</body>
-
-
