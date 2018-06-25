@@ -20,8 +20,7 @@
 <script src="//d3js.org/d3.v5.min.js"></script>
 <script>
 // cf. https://bl.ocks.org/mbostock/3884955
-https://bl.ocks.org/mbostock/0533f44f2cfabecc5e3a
-
+//     https://bl.ocks.org/mbostock/0533f44f2cfabecc5e3a
 
 
 
@@ -91,39 +90,12 @@ g.append("g")
   .attr("fill", "#000")
   .text("Gb");
 
-//var zzz = g.selectAll(".zzz")
-//    .data(series)
-//    .enter().append("g")
-//        .attr("class", "zzz");
-//
-//zzz.append("path")
-//    .attr("class", "line")
-//    .attr("d", function(d) { return line(series); });
-////    .attr("d", function(d) { return line(d) });
-
 g.append("path")
+    .datum(series)
     .attr("class", "line")
-    .attr("d", line(series));
+//    .attr("d", line(series));
+    .attr("d", line);
 
 
-/*
-var thing = svg.append("g").selectAll(".thingclass")
-.data(series)
-.enter().append("g")
-  .attr("class", "thingclass");
-
-thing.append("path")
-  .attr("class", "line")
-  .attr("d", function(d) { return line(d); });
-//  .style("stroke", function(d) { return z(d.id); });
-  ;
-
-thing.append("text")
-  .attr("transform", function(d) { return "translate(" + x(d.time) + "," + y(d.gb) + ")"; })
-  .attr("x", 3)
-  .attr("dy", "0.35em")
-  .style("font", "10px sans-serif")
-  .text(function(d) { return d.id; });
-*/
 
 </script>
