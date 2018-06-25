@@ -59,16 +59,25 @@ function diagram(values) {
         .attr("d", line);
 }
 
+
+
+function draw_diagram(d) {
+    const dd = d.map(x => ({
+        time: x.end,
+        gb: (x.bytes * 8.0)/(1024.0 * 1024.0 * (x.end - x.start))
+    }));
+    diagram(dd);
+}
+
+function reload_diagram(d) {
+    draw_diagram(d);
+}
+
 data = '[{"bytes":675769528,"end":6.000079870223999,"start":0},{"bytes":677642240,"end":12.002346992492676,"start":6.000079870223999},{"bytes":665845760,"end":18.000200033187866,"start":12.002346992492676},{"bytes":693370880,"end":24.000130891799927,"start":18.000200033187866},{"bytes":627834880,"end":30.000110864639282,"start":24.000130891799927}]';
 measurements = JSON.parse(data);
 
-series = measurements.map(x => ({
-    time: x.end,
-    gb: (x.bytes * 8.0)/(1024.0 * 1024.0 * (x.end - x.start))
-}));
+console.log(measurements);
 
-console.log(series);
-
-diagram(series);
+draw_diagram(measurements);
 
 
