@@ -6,6 +6,8 @@ import pytest
 import responses
 
 from perfsonar_data_helper.long_polling import STATUS_RESPONSE_SCHEMA
+from perfsonar_data_helper.latency import LATENCY_RESPONSE_SCHEMA
+from perfsonar_data_helper.throughput import THROUGHPUT_RESPONSE_SCHEMA
 
 test_data = [
     # bad destination type
@@ -44,15 +46,10 @@ def test_bad_request_content_type(client):
     assert rv.status_code == 415
 
 
-@responses.activate
-def test_latency_happy_flow(client, mocked_latency_test_data):
+def _poll(client, test_data):
     rv = client.post(
         "/pscheduler/measurement",
-        data=json.dumps({
-            "type": "latency",
-            "source": mocked_latency_test_data["source"],
-            "destination": mocked_latency_test_data["destination"]
-        }),
+        data=json.dumps(test_data),
         headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
@@ -75,6 +72,31 @@ def test_latency_happy_flow(client, mocked_latency_test_data):
             assert "message" in response_payload;
             continue
 
-        break
+        assert "data" in response_payload
+        return response_payload["data"]
 
-    assert False, "too many test iterations"
+    assert False, "too polling iterations"
+
+
+@responses.activate
+def test_latency_polling_happy_flow(client, mocked_latency_test_data):
+    test_data = {
+        "type": "latency",
+        "source": mocked_latency_test_data["source"],
+        "destination": mocked_latency_test_data["destination"]
+    }
+
+    latency_measurement_result = _poll(client, test_data)
+    validate(latency_measurement_result, LATENCY_RESPONSE_SCHEMA)
+
+
+@responses.activate
+def test_throughput_polling_happy_flow(client, mocked_throughput_test_data):
+    test_data = {
+        "type": "throughput",
+        "source": mocked_throughput_test_data["source"],
+        "destination": mocked_throughput_test_data["destination"]
+    }
+
+    throughput_measurement_result = _poll(client, test_data)
+    validate(throughput_measurement_result, THROUGHPUT_RESPONSE_SCHEMA)
