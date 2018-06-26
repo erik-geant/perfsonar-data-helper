@@ -156,9 +156,66 @@ storing and sending cookies in order to use these resources.
 In order to use these resources the client must support
 storing and sending cookies.
 
+Both of the following resources return responses formatted according
+to the following JSON schema:
+
+```json
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "object",
+    "properties": {
+        "type": {
+            "type": "string",
+            "enum": ["status", "complete"]
+        },
+        "message": {
+            "type": "string",
+            "enum": ["scheduled", "pending", "on-deck", "running"]
+        },
+        "time": {
+            "type": "string",
+            "format": "date-time"
+        },
+        "data": {}
+    },
+    "required": ["type", "time"]
+}
+```
+
 * `/pscheduler/measurement`
 
-  Use this resource to launch a new measurement.  The client
+  Use this resource to launch a new measurement.
+  When this command is successful a `session` cookie
+  is set in the response and must be returned when
+  using the `/pscheduler/status` resource.
+  The client
   must send a post request with payload formatted according
   to the following JSON schema:
 
+  ```json
+    {
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "type": "object",
+        "properties": {
+            "type": {
+                "type": "string",
+                "enum": ["latency", "throughput"]
+            },
+            "source": {"type": "string"},
+            "destination": {"type": "string"}
+        },
+        "required": ["type", "source", "destination"]
+    }
+  ```
+
+* `/pscheduler/status`
+
+  Clients use this resource to request the status of a scheduled
+  measurement.  If the `status` element of the response is
+  `status`, then the `message` element contains the state
+  of the current measurement task.
+
+  The `data` element is populated
+  iff the value of the `status` element is `complete`.  In this
+  case the `data` element is formatted exactly as the responses
+  defined for the `/throughput/*/*` or `/latency/*/* requests.
