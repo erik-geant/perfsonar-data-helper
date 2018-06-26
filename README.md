@@ -69,7 +69,7 @@ configuration are beyond the scope of this document.
 
 The following resources can be requested from the webservice.
 
-### resources
+### synchronous resources
 
 * `/latency/<source address>/<destination address>`
 
@@ -144,3 +144,21 @@ The following resources can be requested from the webservice.
         "required": ["hostname", "name", "communities"]
     }
   ```
+
+### asynchronous resources
+
+The following resources may be used to asynchronously launch a
+measurement and periodically retrieve the status and eventually
+the result.  The running job is maintained using session data
+stored in a cookie returned with the response to the
+`/pscheduler/measurement` resource.  Clients must therefore support
+storing and sending cookies in order to use these resources.
+In order to use these resources the client must support
+storing and sending cookies.
+
+* `/pscheduler/measurement`
+
+  Use this resource to launch a new measurement.  The client
+  must send a post request with payload formatted according
+  to the following JSON schema:
+
