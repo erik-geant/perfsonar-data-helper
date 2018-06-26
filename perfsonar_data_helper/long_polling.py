@@ -4,13 +4,48 @@ import logging
 import time
 
 from flask import Blueprint, current_app, jsonify, session, request, Response
-
+from jsonschema import validate, ValidationError
 
 from perfsonar_data_helper import latency
 from perfsonar_data_helper import throughput
 from perfsonar_data_helper.pscheduler import client as pscheduler_client
 
 api = Blueprint("long-polling-routes", __name__)
+
+MEASUREMENT_REQUEST_SCHEMA = {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "object",
+    "properties": {
+        "type": {
+            "type": "string",
+            "enum": ["latency", "throughput"]
+        },
+        "source": {"type": "string"},
+        "destination": {"type": "string"}
+    },
+    "required": ["type", "source", "destination"]
+}
+
+STATUS_RESPONSE_SCHEMA = {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "object",
+    "properties": {
+        "type": {
+            "type": "string",
+            "enum": ["status", "complete"]
+        },
+        "message": {
+            "type": "string",
+            "enum": ["scheduled", "pending", "on-deck", "running"]
+        },
+        "time": {
+            "type": "string",
+            "format": "date-time"
+        },
+        "data": {}
+    },
+    "required": ["type", "time"]
+}
 
 
 class APIError(Exception):
@@ -56,12 +91,19 @@ def handle_pscheduler_error(error):
     return Response(response=error.message, status=error.status_code)
 
 
+@api.errorhandler(ValidationError)
+def handle_json_validation_error(error):
+    return Response(response=error.message, status=400)
+
+
 @api.route("/pscheduler/measurement", methods=['POST'])
 def pscheduler_measurement():
 
     payload = request.get_json()
     if payload is None:
         raise APIError("expected json payload")
+
+    validate(payload, MEASUREMENT_REQUEST_SCHEMA)
 
     if not isinstance(payload, dict) \
         or not {"type", "source", "destination"}.issubset(set(payload.keys())):

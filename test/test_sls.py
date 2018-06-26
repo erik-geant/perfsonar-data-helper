@@ -24,44 +24,31 @@ MP_RESPONSE_SCHEMA = {
     },
 }
 
-BOOTSTRAP_URL = "http://ps-west.es.net:8096/lookup/activehosts.json"
 
-# test data
-# data files are in the test/sls directory
-RESPONSE_DATA = {
-    BOOTSTRAP_URL: 'activehosts.json',
-    'http://ps-west.es.net:8090/lookup/records': 'ps-west.es.net.json',
-    'http://ps-east.es.net:8090/lookup/records': 'ps-east.es.net.json',
-    'http://monipe-ls.rnp.br:8090/lookup/records': 'monipe-ls.rnp.br.json',
-    'http://ps-sls.sanren.ac.za:8090/lookup/records': 'ps-sls.sanren.ac.za.json',
-    'http://nsw-brwy-sls1.aarnet.net.au:8090/lookup/records': 'nsw-brwy-sls1.aarnet.net.au.json'
-}
-
-
-def mock_sls_responses():
-
-    data_path = os.path.join(os.path.dirname(__file__), "sls")
-    for url, filename in RESPONSE_DATA.items():
-
-        with open(os.path.join(data_path, filename)) as f:
-            body = f.read()
-
-        responses.add(
-            responses.GET,
-            url,
-            body=body,
-            content_type="application/json",
-            match_querystring=False)
-
-        responses.add(
-            responses.GET,
-            url + "/",
-            body=body,
-            content_type="application/json",
-            match_querystring=False)
+# def mock_sls_responses():
+#
+#     data_path = os.path.join(os.path.dirname(__file__), "sls")
+#     for url, filename in RESPONSE_DATA.items():
+#
+#         with open(os.path.join(data_path, filename)) as f:
+#             body = f.read()
+#
+#         responses.add(
+#             responses.GET,
+#             url,
+#             body=body,
+#             content_type="application/json",
+#             match_querystring=False)
+#
+#         responses.add(
+#             responses.GET,
+#             url + "/",
+#             body=body,
+#             content_type="application/json",
+#             match_querystring=False)
 
 
-def get_settings(dirname):
+def get_settings(dirname, bootstrap_url):
     import perfsonar_data_helper
     default_settings_filename = os.path.join(
         perfsonar_data_helper.__path__[0],
@@ -73,18 +60,18 @@ def get_settings(dirname):
     exec(contents, g, settings)
 
     settings["SLS_CACHE_FILENAME"] = os.path.join(dirname, "sls-cache.json")
-    settings["SLS_BOOTSTRAP_URL"] = BOOTSTRAP_URL
+    settings["SLS_BOOTSTRAP_URL"] = bootstrap_url
     return settings
 
 
 @responses.activate
-def test_sls_mps():
+def test_sls_mps(mocked_sls_test_data):
 
-    mock_sls_responses()
+    # mock_sls_responses()
  
     with tempfile.TemporaryDirectory() as tmpdir:
 
-        settings = get_settings(tmpdir)
+        settings = get_settings(tmpdir, mocked_sls_test_data["bootstrap_url"])
 
         sls.update_cached_mps(
             settings["SLS_BOOTSTRAP_URL"],
@@ -95,8 +82,8 @@ def test_sls_mps():
 
 
 @responses.activate
-def test_throughput_http(client):
-    mock_sls_responses()
+def test_throughput_http(client, mocked_sls_test_data):
+    # mock_sls_responses()
     rv = client.get(
         "/mplist/refresh",
         # headers=api_request_headers

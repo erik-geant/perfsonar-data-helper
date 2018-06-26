@@ -1,5 +1,13 @@
 from perfsonar_data_helper.pscheduler import client
 
+LATENCY_RESPONSE_SCHEMA = {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "array",
+#    "minItems": 1,
+    "minimum": 0.0,
+    "items": {"type": "number"},
+}
+
 
 def format_result(task_result):
     if "raw-packets" not in task_result:
