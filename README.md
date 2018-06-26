@@ -218,4 +218,4 @@ to the following JSON schema:
   The `data` element is populated
   iff the value of the `status` element is `complete`.  In this
   case the `data` element is formatted exactly as the responses
-  defined for the `/throughput/*/*` or `/latency/*/* requests.
+  defined for the `/throughput/*/*` or `/latency/*/*` requests.
