@@ -16,7 +16,10 @@ MEASUREMENT_REQUEST_SCHEMA = {
     "$schema": "http://json-schema.org/draft-06/schema#",
     "type": "object",
     "properties": {
-        "type": {"type": "string"},
+        "type": {
+            "type": "string",
+            "enum": ["latency", "throughput"]
+        },
         "source": {"type": "string"},
         "destination": {"type": "string"}
     },
