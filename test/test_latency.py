@@ -16,4 +16,7 @@ def test_latency_delays_http(client, mocked_latency_test_data):
         # headers=api_request_headers
     )
     assert rv.status_code == 200
-    validate(json.loads(rv.data.decode("utf-8")), LATENCY_RESPONSE_SCHEMA)
+
+    test_schema = {"minItems": 1}
+    test_schema.update(LATENCY_RESPONSE_SCHEMA)
+    validate(json.loads(rv.data.decode("utf-8")), test_schema)

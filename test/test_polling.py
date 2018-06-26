@@ -86,8 +86,11 @@ def test_latency_polling_happy_flow(client, mocked_latency_test_data):
         "destination": mocked_latency_test_data["destination"]
     }
 
+    test_schema = {"minItems": 1}
+    test_schema.update(LATENCY_RESPONSE_SCHEMA)
+
     latency_measurement_result = _poll(client, test_data)
-    validate(latency_measurement_result, LATENCY_RESPONSE_SCHEMA)
+    validate(latency_measurement_result, test_schema)
 
 
 @responses.activate
@@ -98,5 +101,8 @@ def test_throughput_polling_happy_flow(client, mocked_throughput_test_data):
         "destination": mocked_throughput_test_data["destination"]
     }
 
+    test_schema = {"minItems": 1}
+    test_schema.update(THROUGHPUT_RESPONSE_SCHEMA)
+
     throughput_measurement_result = _poll(client, test_data)
-    validate(throughput_measurement_result, THROUGHPUT_RESPONSE_SCHEMA)
+    validate(throughput_measurement_result, test_schema)
