@@ -5,28 +5,8 @@ from jsonschema import validate
 import pytest
 import responses
 
-STATUS_RESPONSE_SCHEMA = {
-    "$schema": "http://json-schema.org/draft-06/schema#",
-    "type": "object",
-    "properties": {
-        "type": {
-            "type": "string",
-            "enum": ["status", "complete"]
-        },
-        "message": {
-            "type": "string",
-            "enum": ["scheduled", "pending", "on-deck", "running"]
-        },
-        "time": {
-            "type": "string",
-            "format": "date-time"
-        },
-        "data": {}
-    },
-    "required": ["type", "time"]
-}
+from perfsonar_data_helper.long_polling import STATUS_RESPONSE_SCHEMA
 
-logging.basicConfig(level=logging.DEBUG)
 test_data = [
     # bad destination type
     dict(type="aaa", source="sfsfda", destination=1),

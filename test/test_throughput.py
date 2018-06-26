@@ -1,26 +1,9 @@
 import json
-import logging
-import os
+
 import responses
 from jsonschema import validate
-from perfsonar_data_helper import throughput
 
-logging.basicConfig(level=logging.DEBUG)
-
-THROUGHPUT_RESPONSE_SCHEMA = {
-    "$schema": "http://json-schema.org/draft-06/schema#",
-    "type": "array",
-    "minItems": 1,
-    "items": {
-        "type": "object",
-        "properties": {
-            "start": {"type": "number", "minimum": 0.0},
-            "end": {"type": "number", "minimum": 0.0},
-            "bytes": {"type": "integer", "minimum": 0},
-        },
-        "required": ["start", "end", "bytes"]
-    }
-}
+from perfsonar_data_helper.throughput import THROUGHPUT_RESPONSE_SCHEMA
 
 
 @responses.activate

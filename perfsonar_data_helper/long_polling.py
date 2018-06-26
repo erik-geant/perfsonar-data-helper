@@ -23,6 +23,27 @@ MEASUREMENT_REQUEST_SCHEMA = {
     "required": ["type", "source", "destination"]
 }
 
+STATUS_RESPONSE_SCHEMA = {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "object",
+    "properties": {
+        "type": {
+            "type": "string",
+            "enum": ["status", "complete"]
+        },
+        "message": {
+            "type": "string",
+            "enum": ["scheduled", "pending", "on-deck", "running"]
+        },
+        "time": {
+            "type": "string",
+            "format": "date-time"
+        },
+        "data": {}
+    },
+    "required": ["type", "time"]
+}
+
 
 class APIError(Exception):
     status_code = 415

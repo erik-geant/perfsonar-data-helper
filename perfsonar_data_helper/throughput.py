@@ -1,5 +1,20 @@
 from perfsonar_data_helper.pscheduler import client
 
+THROUGHPUT_RESPONSE_SCHEMA = {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "array",
+#    "minItems": 1,
+    "items": {
+        "type": "object",
+        "properties": {
+            "start": {"type": "number", "minimum": 0.0},
+            "end": {"type": "number", "minimum": 0.0},
+            "bytes": {"type": "integer", "minimum": 0},
+        },
+        "required": ["start", "end", "bytes"]
+    }
+}
+
 
 def format_result(task_result):
     if "intervals" not in task_result:
