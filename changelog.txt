@@ -1,1 +1,2 @@
 0.1 initial demo release
+0.2 include sample html/js scripts in release dist
