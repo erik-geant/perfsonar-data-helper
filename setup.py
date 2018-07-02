@@ -6,7 +6,7 @@ setup(
     author="GEANT",
     author_email="swd@geant.org",
     description="wrapper for pscheduler i/o",
-    url="https://url",
+    url="https://github.com/erik-geant/perfsonar-data-helper",
     packages=find_packages(),
     install_requires=[
         "flask",

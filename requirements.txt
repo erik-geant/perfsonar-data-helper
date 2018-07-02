@@ -7,3 +7,4 @@ responses
 pytest
 pytest-cov
 flake8
+nu-gitflow
