@@ -8,6 +8,7 @@ setup(
     description="wrapper for pscheduler i/o",
     url="https://github.com/erik-geant/perfsonar-data-helper",
     packages=find_packages(),
+    include_package_data=True,
     install_requires=[
         "flask",
         "flask-cors",
