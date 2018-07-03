@@ -30,7 +30,13 @@ def load_services(bootstrap_url):
 
     all_responses = {}
     for url, job in jobs.items():
-        rsp = job.result()
+
+        try:
+            rsp = job.result()
+        except requests.ConnectionError as e:
+            logging.error(str(e))
+            continue
+
         if rsp.status_code == 200:
             all_responses[url] = rsp.json()
         else:
