@@ -2,3 +2,4 @@
 0.2 include sample html/js scripts in release dist
 0.3 set include_package_data
 0.4 added missing manifest
+0.5 handle sls connection errors gracefully
