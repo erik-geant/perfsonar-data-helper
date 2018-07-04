@@ -14,14 +14,19 @@
             titles = ['hostname', 'name', 'communities'];
             
             var table = d3.select('#page-wrap').append('table');
+            var rows = table.append('tbody').selectAll('tr')
+                .data(data).enter()
+                .append('tr');
             var headers = table.append('thead').append('tr')
                 .selectAll('th')
                 .data(titles).enter()
                 .append('th')
-                .text(d => d);
-            var rows = table.append('tbody').selectAll('tr')
-                .data(data).enter()
-                .append('tr');
+                .text(d => d)
+                .on('click', label => {
+                    console.log(label);
+                    rows.sort((a,b) => 
+                        (a[label] == b[label]) ? 0 : ((a[label] > b[label]) ? 1 : -1))
+                });
             rows.selectAll('td')
                 .data(d => { return titles.map(k => {
                         return { 'value': d[k], 'name': k};
