@@ -5,6 +5,9 @@
 Filter by community: <span id="mp-communities"></span>
 <br/>
 Filter by address protocol: <span id="mp-protocol"></span>
+<form id="mp-selection">
+  <input type="hidden" id="hostname" name="hostname" />
+</form>
 <div id="mp-table"></div>
 </body>
 <script src="https://d3js.org/d3.v5.min.js"></script>
@@ -33,6 +36,13 @@ Filter by address protocol: <span id="mp-protocol"></span>
                 .on('mouseout', (d,i) => {
                     rows.filter( (d0, i0) => (i==i0) )
                         .classed('active', false);
+                })
+                .on('click', d => {
+                    form = d3.select('#mp-selection');
+                    form.attr('action', document.referrer)
+                        .select('#hostname')
+                        .attr('value', d.hostname);
+                    form.node().submit();
                 });
             var headers = table.append('thead').append('tr')
                 .selectAll('th')
