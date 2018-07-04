@@ -14,6 +14,8 @@
 </style>
 <body>
 Filter by community: <span id="mp-communities"></span>
+<br/>
+Filter by address protocol: <span id="mp-protocol"></span>
 <div id="mp-table"></div>
 </body>
 <script src="https://d3js.org/d3.v5.min.js"></script>
@@ -61,30 +63,61 @@ Filter by community: <span id="mp-communities"></span>
                 .attr('data-th', d => d.name)
                 .text(d => d.value);
 
+            function row_should_be_hidden(row, community, protocol) {
+                if (community != '*ANY*') {
+                    if (!row.communities.includes(community)) {
+                        return true;
+                    }
+                }
+                if (protocol != '*ANY*') {
+                    if (row.hostname.charAt(0) == '[') {
+                        if (protocol == "ipv4") {
+                            return true;
+                        }
+                    } else {
+                        if (protocol == "ipv6") {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+
             function filter_rows() {
-                s = d3.select('#mp-communities')
+                community = d3.select('#mp-communities')
                        .select('select')
                        .property('value');
-               if (s == '*ALL*') {
-                   rows.classed('hidden', false);
-               } else {
-                   rows.filter(d => d.communities.includes(s))
-                       .classed('hidden', false);
-                   rows.filter(d => !d.communities.includes(s))
-                       .classed('hidden', true);
-               }
+                protocol = d3.select('#mp-protocol')
+                       .select('select')
+                       .property('value');
+                 
+               rows.filter(
+                        d => !row_should_be_hidden(d, community, protocol))
+                   .classed('hidden', false);
+               rows.filter(
+                        d => row_should_be_hidden(d, community, protocol))
+                   .classed('hidden', true);
             }
 
             communities = [].concat.apply([], data.map(x => x.communities));
             communities = communities.filter(x => (x.length > 0));
             communities = Array.from(new Set(communities));
             communities.sort((a,b) => strcmp(a, b));
-            communities.unshift('*ALL*')
+            communities.unshift('*ANY*')
             var select = d3.select('#mp-communities')
                 .append('select')
                 .on('change', filter_rows)
                 .selectAll('option')
                     .data(communities).enter()
+                    .append('option')
+                    .text(String);
+
+            protocols = ['*ANY*', 'ipv4', 'ipv6'];
+            var select = d3.select('#mp-protocol')
+                .append('select')
+                .on('change', filter_rows)
+                .selectAll('option')
+                    .data(protocols).enter()
                     .append('option')
                     .text(String);
 
