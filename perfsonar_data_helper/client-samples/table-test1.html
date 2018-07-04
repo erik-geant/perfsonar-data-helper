@@ -8,10 +8,12 @@
   tr.active {
     background: lightblue;
   }
+  tr.hidden {
+    display: none;
+  }
 </style>
 <body>
-<div id="mp-communities"></div>
-<br/>
+Filter by community: <span id="mp-communities"></span>
 <div id="mp-table"></div>
 </body>
 <script src="https://d3js.org/d3.v5.min.js"></script>
@@ -63,13 +65,21 @@
             communities = communities.filter(x => (x.length > 0));
             communities = Array.from(new Set(communities));
             communities.sort((a,b) => strcmp(a, b));
+            communities.unshift('*ALL*')
             var select = d3.select('#mp-communities')
                 .append('select')
                 .on('change', () => {
                     s = d3.select('#mp-communities')
                             .select('select')
                             .property('value');
-                    console.log(s);
+                    if (s == '*ALL*') {
+                        rows.classed('hidden', false);
+                    } else {
+                        rows.filter(d => d.communities.includes(s))
+                            .classed('hidden', false);
+                        rows.filter(d => !d.communities.includes(s))
+                            .classed('hidden', true);
+                    }
                 });
             select.selectAll('option')
                 .data(communities).enter()
@@ -77,5 +87,4 @@
                 .text(String);
 
         });
-
 </script>
