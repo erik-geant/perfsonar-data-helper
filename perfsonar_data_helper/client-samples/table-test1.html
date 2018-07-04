@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<link href="default.css" rel="stylesheet" type="text/css">
+<body>
+<div id="page-wrap" />
+</body>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<!--script type="text/javascript" src="throughput-timeseries.js"></script>
+<script type="text/javascript" src="long-polling.js"></script-->
+<script>
+    d3.json('http://test-psui-vis.geant.org:9876/mplist/iperf3')
+        .then(data => {
+            titles = ['hostname', 'name', 'communities'];
+            
+            var table = d3.select('#page-wrap').append('table');
+            var headers = table.append('thead').append('tr')
+                .selectAll('th')
+                .data(titles).enter()
+                .append('th')
+                .text(d => d);
+            var rows = table.append('tbody').selectAll('tr')
+                .data(data).enter()
+                .append('tr');
+            rows.selectAll('td')
+                .data(d => { return titles.map(k => {
+                        return { 'value': d[k], 'name': k};
+                    });
+                }).enter()
+                .append('td')
+                .attr('data-th', d => d.name)
+                .text(d => d.value);
+        });
+
+</script>
