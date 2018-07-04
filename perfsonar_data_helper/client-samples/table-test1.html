@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <link href="default.css" rel="stylesheet" type="text/css">
+<style>
+  tr:nth-of-type(odd) {
+    background: #eee;
+  }
+  tr.active {
+    background: lightblue;
+  }
+</style>
 <body>
 <div id="page-wrap" />
 </body>
@@ -19,7 +27,15 @@
             var table = d3.select('#page-wrap').append('table');
             var rows = table.append('tbody').selectAll('tr')
                 .data(data).enter()
-                .append('tr');
+                .append('tr')
+                .on('mouseover', (d,i) => {
+                    rows.filter( (d0, i0) => (i==i0) )
+                        .classed('active', true);
+                })
+                .on('mouseout', (d,i) => {
+                    rows.filter( (d0, i0) => (i==i0) )
+                        .classed('active', false);
+                });
             var headers = table.append('thead').append('tr')
                 .selectAll('th')
                 .data(titles).enter()
