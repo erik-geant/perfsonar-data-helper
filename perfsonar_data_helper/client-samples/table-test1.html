@@ -10,7 +10,9 @@
   }
 </style>
 <body>
-<div id="page-wrap" />
+<div id="mp-communities"></div>
+<br/>
+<div id="mp-table"></div>
 </body>
 <script src="https://d3js.org/d3.v5.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -18,13 +20,16 @@
 <script type="text/javascript" src="long-polling.js"></script-->
 <script>
     function strcmp(a,b) {
+        a = a.toLowerCase();
+        b = b.toLowerCase();
         return (a==b) ? 0 : ((a>b) ? 1 : -1);
     }
     d3.json('http://test-psui-vis.geant.org:9876/mplist/iperf3')
         .then(data => {
+
             titles = ['hostname', 'name', 'communities'];
-            
-            var table = d3.select('#page-wrap').append('table');
+
+            var table = d3.select('#mp-table').append('table');
             var rows = table.append('tbody').selectAll('tr')
                 .data(data).enter()
                 .append('tr')
@@ -53,6 +58,24 @@
                 .append('td')
                 .attr('data-th', d => d.name)
                 .text(d => d.value);
+
+            communities = [].concat.apply([], data.map(x => x.communities));
+            communities = communities.filter(x => (x.length > 0));
+            communities = Array.from(new Set(communities));
+            communities.sort((a,b) => strcmp(a, b));
+            var select = d3.select('#mp-communities')
+                .append('select')
+                .on('change', () => {
+                    s = d3.select('#mp-communities')
+                            .select('select')
+                            .property('value');
+                    console.log(s);
+                });
+            select.selectAll('option')
+                .data(communities).enter()
+                .append('option')
+                .text(String);
+
         });
 
 </script>
