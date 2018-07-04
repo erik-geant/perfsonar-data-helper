@@ -61,6 +61,20 @@ Filter by community: <span id="mp-communities"></span>
                 .attr('data-th', d => d.name)
                 .text(d => d.value);
 
+            function filter_rows() {
+                s = d3.select('#mp-communities')
+                       .select('select')
+                       .property('value');
+               if (s == '*ALL*') {
+                   rows.classed('hidden', false);
+               } else {
+                   rows.filter(d => d.communities.includes(s))
+                       .classed('hidden', false);
+                   rows.filter(d => !d.communities.includes(s))
+                       .classed('hidden', true);
+               }
+            }
+
             communities = [].concat.apply([], data.map(x => x.communities));
             communities = communities.filter(x => (x.length > 0));
             communities = Array.from(new Set(communities));
@@ -68,23 +82,11 @@ Filter by community: <span id="mp-communities"></span>
             communities.unshift('*ALL*')
             var select = d3.select('#mp-communities')
                 .append('select')
-                .on('change', () => {
-                    s = d3.select('#mp-communities')
-                            .select('select')
-                            .property('value');
-                    if (s == '*ALL*') {
-                        rows.classed('hidden', false);
-                    } else {
-                        rows.filter(d => d.communities.includes(s))
-                            .classed('hidden', false);
-                        rows.filter(d => !d.communities.includes(s))
-                            .classed('hidden', true);
-                    }
-                });
-            select.selectAll('option')
-                .data(communities).enter()
-                .append('option')
-                .text(String);
+                .on('change', filter_rows)
+                .selectAll('option')
+                    .data(communities).enter()
+                    .append('option')
+                    .text(String);
 
         });
 </script>
