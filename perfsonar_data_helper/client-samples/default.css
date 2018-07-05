@@ -21,3 +21,16 @@ body {
   stroke: steelblue;
   stroke-width: 1.5px;
 }
+
+tr:nth-of-type(odd) {
+  background: #eee;
+}
+
+tr.active {
+  background: lightblue;
+}
+
+tr.hidden {
+  display: none;
+}
+
