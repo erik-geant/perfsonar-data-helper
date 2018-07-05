@@ -1,1 +1,2 @@
 recursive-include perfsonar_data_helper/client-samples *
+recursive-include perfsonar_data_helper/templates *.j2
