@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<link href="/sample/default.css" rel="stylesheet" type="text/css">
+<body>
+Filter by community: <span id="mp-communities"></span>
+<br/>
+Filter by address protocol: <span id="mp-protocol"></span>
+<form id="mp-selection"  action="{{ submission_url }}">
+  <input type="hidden" id="hostname" name="{{ hostname_varname }}"/>
+  <input type="hidden" name="state" value="{{ next_state }}"/>
+  <input type="hidden" name="previous" value="{{ previous_params_json }}"/>
+</form>
+<div id="mp-table"></div>
+</body>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<!--script type="text/javascript" src="throughput-timeseries.js"></script>
+<script type="text/javascript" src="long-polling.js"></script-->
+<script>
+    var ascending = true;
+    function strcmp(a,b) {
+        a = a.toLowerCase();
+        b = b.toLowerCase();
+        result = ((a==b) ? 0 : ((a>b) ? 1 : -1));
+        return ascending ? result : -result;
+    }
+    d3.json('http://test-psui-vis.geant.org:9876/mplist/iperf3')
+        .then(data => {
+
+            titles = ['hostname', 'name', 'communities'];
+
+            var table = d3.select('#mp-table').append('table');
+            var rows = table.append('tbody').selectAll('tr')
+                .data(data).enter()
+                .append('tr')
+                .on('mouseover', (d,i) => {
+                    rows.filter( (d0, i0) => (i==i0) )
+                        .classed('active', true);
+                })
+                .on('mouseout', (d,i) => {
+                    rows.filter( (d0, i0) => (i==i0) )
+                        .classed('active', false);
+                })
+                .on('click', d => {
+                    form = d3.select('#mp-selection');
+                    form.attr('action', document.referrer)
+                        .select('#hostname')
+                        .attr('value', d.hostname);
+                    form.node().submit();
+                });
+            var headers = table.append('thead').append('tr')
+                .selectAll('th')
+                .data(titles).enter()
+                .append('th')
+                .text(d => d)
+                .on('click', label => {
+                    console.log(label);
+                    rows.sort((a,b) => strcmp(a[label], b[label]));
+                    ascending = !ascending;
+                });
+            rows.selectAll('td')
+                .data(d => { return titles.map(k => {
+                        return { 'value': d[k], 'name': k};
+                    });
+                }).enter()
+                .append('td')
+                .attr('data-th', d => d.name)
+                .text(d => d.value);
+
+            function row_should_be_hidden(row, community, protocol) {
+                if (community != '*ANY*') {
+                    if (!row.communities.includes(community)) {
+                        return true;
+                    }
+                }
+                if (protocol != '*ANY*') {
+                    if (row.hostname.charAt(0) == '[') {
+                        if (protocol == "ipv4") {
+                            return true;
+                        }
+                    } else {
+                        if (protocol == "ipv6") {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+
+            function filter_rows() {
+                community = d3.select('#mp-communities')
+                       .select('select')
+                       .property('value');
+                protocol = d3.select('#mp-protocol')
+                       .select('select')
+                       .property('value');
+                 
+               rows.filter(
+                        d => !row_should_be_hidden(d, community, protocol))
+                   .classed('hidden', false);
+               rows.filter(
+                        d => row_should_be_hidden(d, community, protocol))
+                   .classed('hidden', true);
+            }
+
+            communities = [].concat.apply([], data.map(x => x.communities));
+            communities = communities.filter(x => (x.length > 0));
+            communities = Array.from(new Set(communities));
+            communities.sort((a,b) => strcmp(a, b));
+            communities.unshift('*ANY*')
+            var select = d3.select('#mp-communities')
+                .append('select')
+                .on('change', filter_rows)
+                .selectAll('option')
+                    .data(communities).enter()
+                    .append('option')
+                    .text(String);
+
+            protocols = ['*ANY*', 'ipv4', 'ipv6'];
+            var select = d3.select('#mp-protocol')
+                .append('select')
+                .on('change', filter_rows)
+                .selectAll('option')
+                    .data(protocols).enter()
+                    .append('option')
+                    .text(String);
+
+        });
+</script>

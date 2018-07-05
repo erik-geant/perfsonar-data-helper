@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="perfsonar_data_helper",
-    version="0.5",
+    version="0.6",
     author="GEANT",
     author_email="swd@geant.org",
     description="wrapper for pscheduler i/o",

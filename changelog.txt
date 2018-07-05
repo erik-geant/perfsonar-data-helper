@@ -3,3 +3,4 @@
 0.3 set include_package_data
 0.4 added missing manifest
 0.5 handle sls connection errors gracefully
+0.6 link mp selecton to tests with some forms+params
