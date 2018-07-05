@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<link href="/sample/default.css" rel="stylesheet" type="text/css">
+<body>
+<form id="run_form" action="{{ submission_url }}">
+  <input type="hidden" id="state" name="state" value="run" /><br/>
+
+  <input type="text" name="source" value="{{ source }}" />
+  <button onclick="selectMP('source')">Select Source</button><br/>
+
+  <input type="text" name="destination" value="{{ destination }}" />
+  <button onclick="selectMP('destination')">Select Destination</button><br/>
+
+  <select id="measurement" name="measurement">
+    <option value="latency">latency</option>
+    <option value="throughput">throughput</option>
+  </input><br/>
+
+  <input type="submit" value="Run" />
+</form>
+</body>
+<script>
+  function selectMP(participant) {
+        document.getElementById('state').value = 'select ' + participant;
+        document.getElementById('run_form').submit();
+  }
+  (function () {
+        document.getElementById('measurement').value="{{ measurement }}";
+  })();
+
+</script>

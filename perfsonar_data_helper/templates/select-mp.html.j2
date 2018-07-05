@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<link href="default.css" rel="stylesheet" type="text/css">
+<link href="/sample/default.css" rel="stylesheet" type="text/css">
 <body>
 Filter by community: <span id="mp-communities"></span>
 <br/>
 Filter by address protocol: <span id="mp-protocol"></span>
-<form id="mp-selection">
-  <input type="hidden" id="hostname" name="hostname" />
+<form id="mp-selection"  action="{{ submission_url }}">
+  <input type="hidden" id="hostname" name="{{ hostname_varname }}"/>
+  <input type="hidden" name="state" value="{{ next_state }}"/>
+  <input type="hidden" name="previous" value="{{ previous_params_json }}"/>
 </form>
 <div id="mp-table"></div>
 </body>
@@ -15,10 +17,12 @@ Filter by address protocol: <span id="mp-protocol"></span>
 <!--script type="text/javascript" src="throughput-timeseries.js"></script>
 <script type="text/javascript" src="long-polling.js"></script-->
 <script>
+    var ascending = true;
     function strcmp(a,b) {
         a = a.toLowerCase();
         b = b.toLowerCase();
-        return (a==b) ? 0 : ((a>b) ? 1 : -1);
+        result = ((a==b) ? 0 : ((a>b) ? 1 : -1));
+        return ascending ? result : -result;
     }
     d3.json('http://test-psui-vis.geant.org:9876/mplist/iperf3')
         .then(data => {
@@ -52,6 +56,7 @@ Filter by address protocol: <span id="mp-protocol"></span>
                 .on('click', label => {
                     console.log(label);
                     rows.sort((a,b) => strcmp(a[label], b[label]));
+                    ascending = !ascending;
                 });
             rows.selectAll('td')
                 .data(d => { return titles.map(k => {
