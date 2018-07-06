@@ -15,6 +15,9 @@ svg.append("g")
 var formatCount = d3.format(",.0f");
 var formatTime = d3.format(",.1f");
 
+var x;
+var x_axis;
+
 function barText(bar) {
 /*
     return "["
@@ -27,17 +30,10 @@ function barText(bar) {
 }
 
 
-
 function diagram(values) {
 
-    var x_domain = d3.extent(values);
-    x_domain_length = x_domain[1] - x_domain[0];
-    x_domain[0] -= x_domain_length/2.0;
-    x_domain[1] += x_domain_length/2.0;
-
     x = d3.scaleLinear()
-        .domain(x_domain).nice()
-//        .domain(d3.extent(values)).nice()
+        .domain(d3.extent(values)).nice()
         .range([MARGIN.left, WIDTH - MARGIN.right]);
 
     var bins = d3.histogram()
@@ -81,9 +77,11 @@ function diagram(values) {
       .attr("y", d => y(d.length))
       .attr("height", d => y(0) - y(d.length))
 
-    xAxis = g => g
-        .attr("transform", `translate(0,${HEIGHT- MARGIN.bottom})`)
-        .call(d3.axisBottom(x).tickSizeOuter(0));
+    xAxis = d3.axisBottom(x);
+//        .attr("transform", 'translate(0,${HEIGHT- MARGIN.bottom})');
+//    xAxis = g => g
+//        .attr("transform", `translate(0,${HEIGHT- MARGIN.bottom})`)
+//        .call(d3.axisBottom(x).tickSizeOuter(0));
 //         .call(g => g.append("text")
 //             .attr("x", WIDTH - MARGIN.right)
 //             .attr("y", 30)
@@ -93,6 +91,8 @@ function diagram(values) {
 //             .text(values.x));
 
     svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", `translate(0,${HEIGHT- MARGIN.bottom})`)
         .call(xAxis);
 
 /*
@@ -114,11 +114,7 @@ function diagram(values) {
 
 function refresh(values) {
 
-/*
-    var x = d3.scaleLinear()
-        .domain(d3.extent(values)).nice()
-        .range([MARGIN.left, WIDTH - MARGIN.right]);
-*/
+    x.domain(d3.extent(values));
 
     var bins = d3.histogram()
         .domain(x.domain())
@@ -135,23 +131,38 @@ function refresh(values) {
 
     var bar = svg.selectAll(".bar").data(bins);
 
-    // remove object with data
+    // remove unneeded objects
     bar.exit().remove();
+
+    bar.enter().append("g")
+        .attr("class", "bar")
+        .attr("transform", function(d) { return "translate(" + x(d.x0) + "," + y(d.length) + ")"; });
+
+    bar.enter().append("rect")
+    bar.append("text")
+
+    bar.select("rect")
+        .transition()
+        .duration(1000)
+        .attr("x", 1)
+        .attr("width", d => Math.max(x(d.x1) - x(d.x0) - 1, 0))
+        .attr("height", d => y(0) - y(d.length))
+        .attr("fill", d => colorScale(d.length));
+
+    bar.select("text")
+        .attr("dy", ".75em")
+        .attr("y", -12)
+        .attr("x", (x(bins[0].x1) - x(bins[0].x0)) / 2)
+        .attr("text-anchor", "middle")
+        .text(d => barText(d));
 
     bar.transition()
         .duration(1000)
         .attr("transform", function(d) { return "translate(" + x(d.x0) + "," + y(d.length) + ")"; });
 
-    bar.select("rect")
+    svg.select(".x")
         .transition()
-        .duration(1000)
-        .attr("height", d => y(0) - y(d.length))
-        .attr("fill", d => colorScale(d.length));
-
-    bar.select("text")
-        .transition()
-        .duration(1000)
-        .text(d => barText(d));
+        .call(xAxis);
 }
 
 function reload_diagram(d) {
