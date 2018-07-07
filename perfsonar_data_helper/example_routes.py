@@ -7,14 +7,14 @@ from flask import Blueprint, current_app, url_for, \
 
 examples = Blueprint("sample-client-routes", __name__)
 
-sample_base_path = os.path.join(
+static_base_path = os.path.join(
         os.path.dirname(__file__),
-        "client-samples")
+        "static")
 
 
-@examples.route("/sample/<path:path>")
-def send_sample(path):
-    return send_from_directory(sample_base_path, path)
+@examples.route("/static/<path:path>")
+def send_static(path):
+    return send_from_directory(static_base_path, path)
 
 @examples.route("/sample2/run-test", methods=['GET', 'POST'])
 def run_test():
