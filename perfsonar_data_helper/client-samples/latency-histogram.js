@@ -44,16 +44,15 @@ function get_color_scale(bins) {
         .range([d3.rgb(COLOR).brighter(), d3.rgb(COLOR).darker()]);
 }
 
-function get_y(bins) {
-    return d3.scaleLinear()
-        .domain([0, d3.max(bins, d => d.length)]).nice()
-        .range([HEIGHT - MARGIN.bottom, MARGIN.top]);
-}
-
-function size_bars(bins, x, y, transition) {
+function size_bars(bins, x, transition) {
     var bars = svg.selectAll(".bar");
+    // caller should have already created
+    // rect & text subelements for these bars
 
     var colorScale = get_color_scale(bins);
+    var y = d3.scaleLinear()
+        .domain([0, d3.max(bins, d => d.length)]).nice()
+        .range([HEIGHT - MARGIN.bottom, MARGIN.top]);
 
     if (transition) {
         bars.select("rect")
@@ -93,12 +92,12 @@ function diagram(values) {
         .domain(get_x_axis_extent(values)).nice()
         .range([MARGIN.left, WIDTH - MARGIN.right]);
 
+    xAxis = d3.axisBottom(x);
+
     var bins = d3.histogram()
         .domain(x.domain())
         .thresholds(x.ticks(NUM_BINS))
       (values);
-
-    var y = get_y(bins);
 
     var bar = svg.selectAll(".bar")
         .data(bins)
@@ -108,30 +107,7 @@ function diagram(values) {
     bar.append("rect")
     bar.append("text")
 
-    size_bars(bins, x, y, false);
-/*
-    svg
-    .selectAll("rect")
-    .data(bins)
-    .enter().append("rect")
-      .attr("x", d => x(d.x0) + 1)
-      .attr("width", d => x(d.x1) - x(d.x0) - 1)
-      .attr("y", d => y(d.length))
-      .attr("height", d => y(0) - y(d.length))
-*/
-
-    xAxis = d3.axisBottom(x);
-//        .attr("transform", 'translate(0,${HEIGHT- MARGIN.bottom})');
-//    xAxis = g => g
-//        .attr("transform", `translate(0,${HEIGHT- MARGIN.bottom})`)
-//        .call(d3.axisBottom(x).tickSizeOuter(0));
-//         .call(g => g.append("text")
-//             .attr("x", WIDTH - MARGIN.right)
-//             .attr("y", 30)
-//             .attr("fill", "#000")
-//             .attr("font-weight", "bold")
-//             .attr("text-anchor", "end")
-//             .text(values.x));
+    size_bars(bins, x, false);
 
     svg.append("g")
         .attr("class", "x axis")
@@ -152,7 +128,6 @@ function diagram(values) {
     svg.append("g")
         .call(yAxis);
 */
-    return svg.node();
 }
 
 function refresh(values) {
@@ -164,19 +139,16 @@ function refresh(values) {
         .thresholds(x.ticks(NUM_BINS))
       (values);
 
-    var y = get_y(bins);
-
     var bar = svg.selectAll(".bar").data(bins);
     bar.exit().remove(); // remove unneeded bars
 
     bar.enter().append("g")
         .attr("class", "bar");
-//        .attr("transform", function(d) { return "translate(" + x(d.x0) + "," + y(d.length) + ")"; });
 
     bar.enter().append("rect")
     bar.append("text")
 
-    size_bars(bins, x, y, true);
+    size_bars(bins, x, true);
 
     svg.select(".x")
         .transition()
