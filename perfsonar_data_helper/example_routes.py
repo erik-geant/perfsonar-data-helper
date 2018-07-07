@@ -16,7 +16,7 @@ static_base_path = os.path.join(
 def send_static(path):
     return send_from_directory(static_base_path, path)
 
-@examples.route("/sample2/run-test", methods=['GET', 'POST'])
+@examples.route("/sample/run-test", methods=['GET', 'POST'])
 def run_test():
 
     def _current_params():
