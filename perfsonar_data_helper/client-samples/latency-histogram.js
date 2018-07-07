@@ -30,10 +30,18 @@ function barText(bar) {
 }
 
 
+function get_x_axis_extent(values) {
+    var x_domain = d3.extent(values);
+    x_domain_length = x_domain[1] - x_domain[0];
+    x_domain[0] -= x_domain_length/2.0;
+    x_domain[1] += x_domain_length/2.0;
+    return x_domain;
+}
+
 function diagram(values) {
 
     x = d3.scaleLinear()
-        .domain(d3.extent(values)).nice()
+        .domain(get_x_axis_extent(values)).nice()
         .range([MARGIN.left, WIDTH - MARGIN.right]);
 
     var bins = d3.histogram()
@@ -114,7 +122,7 @@ function diagram(values) {
 
 function refresh(values) {
 
-    x.domain(d3.extent(values));
+    x.domain(get_x_axis_extent(values)).nice();
 
     var bins = d3.histogram()
         .domain(x.domain())
@@ -130,9 +138,7 @@ function refresh(values) {
         .range([HEIGHT - MARGIN.bottom, MARGIN.top]);
 
     var bar = svg.selectAll(".bar").data(bins);
-
-    // remove unneeded objects
-    bar.exit().remove();
+    bar.exit().remove(); // remove unneeded bars
 
     bar.enter().append("g")
         .attr("class", "bar")
