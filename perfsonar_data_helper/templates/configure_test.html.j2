@@ -25,7 +25,7 @@
         document.getElementById('run_form').submit();
   }
   (function () {
-        document.getElementById('measurement').value="{{ measurement }}";
+        document.getElementById('measurement').value = "{{ measurement }}" || "latency";
   })();
 
 </script>
