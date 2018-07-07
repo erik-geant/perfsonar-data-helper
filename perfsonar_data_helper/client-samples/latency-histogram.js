@@ -38,6 +38,55 @@ function get_x_axis_extent(values) {
     return x_domain;
 }
 
+function get_color_scale(bins) {
+    return d3.scaleLinear()
+        .domain(d3.extent(bins, d => d.length))
+        .range([d3.rgb(COLOR).brighter(), d3.rgb(COLOR).darker()]);
+}
+
+function get_y(bins) {
+    return d3.scaleLinear()
+        .domain([0, d3.max(bins, d => d.length)]).nice()
+        .range([HEIGHT - MARGIN.bottom, MARGIN.top]);
+}
+
+function size_bars(bins, x, y, transition) {
+    var bars = svg.selectAll(".bar");
+
+    var colorScale = get_color_scale(bins);
+
+    if (transition) {
+        bars.select("rect")
+            .transition()
+            .duration(1000)
+            .attr("x", 1)
+            .attr("width", d => Math.max(x(d.x1) - x(d.x0) - 1, 0))
+            .attr("height", d => y(0) - y(d.length))
+            .attr("fill", d => colorScale(d.length));
+    } else {
+        bars.select("rect")
+            .attr("x", 1)
+            .attr("width", d => Math.max(x(d.x1) - x(d.x0) - 1, 0))
+            .attr("height", d => y(0) - y(d.length))
+            .attr("fill", d => colorScale(d.length));
+    }
+
+    bars.select("text")
+        .attr("dy", ".75em")
+        .attr("y", -12)
+        .attr("x", (x(bins[0].x1) - x(bins[0].x0)) / 2)
+        .attr("text-anchor", "middle")
+        .text(d => barText(d));
+
+    if (transition) {
+        bars.transition()
+            .duration(1000)
+            .attr("transform", function(d) { return "translate(" + x(d.x0) + "," + y(d.length) + ")"; });
+    } else {
+        bars.attr("transform", function(d) { return "translate(" + x(d.x0) + "," + y(d.length) + ")"; });
+    }
+}
+
 function diagram(values) {
 
     x = d3.scaleLinear()
@@ -49,33 +98,18 @@ function diagram(values) {
         .thresholds(x.ticks(NUM_BINS))
       (values);
 
-    var colorScale = d3.scaleLinear()
-        .domain(d3.extent(bins, d => d.length))
-        .range([d3.rgb(COLOR).brighter(), d3.rgb(COLOR).darker()]);
-
-    var y = d3.scaleLinear()
-        .domain([0, d3.max(bins, d => d.length)]).nice()
-        .range([HEIGHT - MARGIN.bottom, MARGIN.top]);
+    var y = get_y(bins);
 
     var bar = svg.selectAll(".bar")
         .data(bins)
         .enter().append("g")
-    .attr("class", "bar")
-    .attr("transform", function(d) { return "translate(" + x(d.x0) + "," + y(d.length) + ")"; });
+            .attr("class", "bar");
 
     bar.append("rect")
-        .attr("x", 1)
-        .attr("width", d => Math.max(x(d.x1) - x(d.x0) - 1, 0))
-        .attr("height", d => y(0) - y(d.length))
-        .attr("fill", d => colorScale(d.length));
-
     bar.append("text")
-        .attr("dy", ".75em")
-        .attr("y", -12)
-        .attr("x", (x(bins[0].x1) - x(bins[0].x0)) / 2)
-        .attr("text-anchor", "middle")
-        .text(d => barText(d));
 
+    size_bars(bins, x, y, false);
+/*
     svg
     .selectAll("rect")
     .data(bins)
@@ -84,6 +118,7 @@ function diagram(values) {
       .attr("width", d => x(d.x1) - x(d.x0) - 1)
       .attr("y", d => y(d.length))
       .attr("height", d => y(0) - y(d.length))
+*/
 
     xAxis = d3.axisBottom(x);
 //        .attr("transform", 'translate(0,${HEIGHT- MARGIN.bottom})');
@@ -129,42 +164,19 @@ function refresh(values) {
         .thresholds(x.ticks(NUM_BINS))
       (values);
 
-    var colorScale = d3.scaleLinear()
-        .domain(d3.extent(bins, d => d.length))
-        .range([d3.rgb(COLOR).brighter(), d3.rgb(COLOR).darker()]);
-
-    var y = d3.scaleLinear()
-        .domain([0, d3.max(bins, d => d.length)]).nice()
-        .range([HEIGHT - MARGIN.bottom, MARGIN.top]);
+    var y = get_y(bins);
 
     var bar = svg.selectAll(".bar").data(bins);
     bar.exit().remove(); // remove unneeded bars
 
     bar.enter().append("g")
-        .attr("class", "bar")
-        .attr("transform", function(d) { return "translate(" + x(d.x0) + "," + y(d.length) + ")"; });
+        .attr("class", "bar");
+//        .attr("transform", function(d) { return "translate(" + x(d.x0) + "," + y(d.length) + ")"; });
 
     bar.enter().append("rect")
     bar.append("text")
 
-    bar.select("rect")
-        .transition()
-        .duration(1000)
-        .attr("x", 1)
-        .attr("width", d => Math.max(x(d.x1) - x(d.x0) - 1, 0))
-        .attr("height", d => y(0) - y(d.length))
-        .attr("fill", d => colorScale(d.length));
-
-    bar.select("text")
-        .attr("dy", ".75em")
-        .attr("y", -12)
-        .attr("x", (x(bins[0].x1) - x(bins[0].x0)) / 2)
-        .attr("text-anchor", "middle")
-        .text(d => barText(d));
-
-    bar.transition()
-        .duration(1000)
-        .attr("transform", function(d) { return "translate(" + x(d.x0) + "," + y(d.length) + ")"; });
+    size_bars(bins, x, y, true);
 
     svg.select(".x")
         .transition()
