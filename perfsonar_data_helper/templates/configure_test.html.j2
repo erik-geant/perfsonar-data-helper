@@ -14,7 +14,7 @@
   <select id="measurement" name="measurement">
     <option value="latency">latency</option>
     <option value="throughput">throughput</option>
-  </input><br/>
+  </select><br/>
 
   <input type="submit" value="Run" />
 </form>
@@ -25,7 +25,7 @@
         document.getElementById('run_form').submit();
   }
   (function () {
-        document.getElementById('measurement').value="{{ measurement }}";
+        document.getElementById('measurement').value = "{{ measurement }}" || "latency";
   })();
 
 </script>

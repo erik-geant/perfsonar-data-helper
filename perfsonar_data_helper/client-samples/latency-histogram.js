@@ -15,6 +15,9 @@ svg.append("g")
 var formatCount = d3.format(",.0f");
 var formatTime = d3.format(",.1f");
 
+var x;
+var x_axis;
+
 function barText(bar) {
 /*
     return "["
@@ -27,72 +30,88 @@ function barText(bar) {
 }
 
 
-
-function diagram(values) {
-
+function get_x_axis_extent(values) {
     var x_domain = d3.extent(values);
     x_domain_length = x_domain[1] - x_domain[0];
     x_domain[0] -= x_domain_length/2.0;
     x_domain[1] += x_domain_length/2.0;
+    return x_domain;
+}
 
-    x = d3.scaleLinear()
-        .domain(x_domain).nice()
-//        .domain(d3.extent(values)).nice()
-        .range([MARGIN.left, WIDTH - MARGIN.right]);
-
-    var bins = d3.histogram()
-        .domain(x.domain())
-        .thresholds(x.ticks(NUM_BINS))
-      (values);
-
-    var colorScale = d3.scaleLinear()
+function get_color_scale(bins) {
+    return d3.scaleLinear()
         .domain(d3.extent(bins, d => d.length))
         .range([d3.rgb(COLOR).brighter(), d3.rgb(COLOR).darker()]);
+}
 
+function size_bars(bins, x, transition) {
+    var bars = svg.selectAll(".bar");
+    // caller should have already created
+    // rect & text subelements for these bars
+
+    var colorScale = get_color_scale(bins);
     var y = d3.scaleLinear()
         .domain([0, d3.max(bins, d => d.length)]).nice()
         .range([HEIGHT - MARGIN.bottom, MARGIN.top]);
 
-    var bar = svg.selectAll(".bar")
-        .data(bins)
-        .enter().append("g")
-    .attr("class", "bar")
-    .attr("transform", function(d) { return "translate(" + x(d.x0) + "," + y(d.length) + ")"; });
+    if (transition) {
+        bars.select("rect")
+            .transition()
+            .duration(1000)
+            .attr("x", 1)
+            .attr("width", d => Math.max(x(d.x1) - x(d.x0) - 1, 0))
+            .attr("height", d => y(0) - y(d.length))
+            .attr("fill", d => colorScale(d.length));
+    } else {
+        bars.select("rect")
+            .attr("x", 1)
+            .attr("width", d => Math.max(x(d.x1) - x(d.x0) - 1, 0))
+            .attr("height", d => y(0) - y(d.length))
+            .attr("fill", d => colorScale(d.length));
+    }
 
-    bar.append("rect")
-        .attr("x", 1)
-        .attr("width", d => Math.max(x(d.x1) - x(d.x0) - 1, 0))
-        .attr("height", d => y(0) - y(d.length))
-        .attr("fill", d => colorScale(d.length));
-
-    bar.append("text")
+    bars.select("text")
         .attr("dy", ".75em")
         .attr("y", -12)
         .attr("x", (x(bins[0].x1) - x(bins[0].x0)) / 2)
         .attr("text-anchor", "middle")
         .text(d => barText(d));
 
-    svg
-    .selectAll("rect")
-    .data(bins)
-    .enter().append("rect")
-      .attr("x", d => x(d.x0) + 1)
-      .attr("width", d => x(d.x1) - x(d.x0) - 1)
-      .attr("y", d => y(d.length))
-      .attr("height", d => y(0) - y(d.length))
+    if (transition) {
+        bars.transition()
+            .duration(1000)
+            .attr("transform", function(d) { return "translate(" + x(d.x0) + "," + y(d.length) + ")"; });
+    } else {
+        bars.attr("transform", function(d) { return "translate(" + x(d.x0) + "," + y(d.length) + ")"; });
+    }
+}
 
-    xAxis = g => g
-        .attr("transform", `translate(0,${HEIGHT- MARGIN.bottom})`)
-        .call(d3.axisBottom(x).tickSizeOuter(0));
-//         .call(g => g.append("text")
-//             .attr("x", WIDTH - MARGIN.right)
-//             .attr("y", 30)
-//             .attr("fill", "#000")
-//             .attr("font-weight", "bold")
-//             .attr("text-anchor", "end")
-//             .text(values.x));
+function diagram(values) {
+
+    x = d3.scaleLinear()
+        .domain(get_x_axis_extent(values)).nice()
+        .range([MARGIN.left, WIDTH - MARGIN.right]);
+
+    xAxis = d3.axisBottom(x);
+
+    var bins = d3.histogram()
+        .domain(x.domain())
+        .thresholds(x.ticks(NUM_BINS))
+      (values);
+
+    var bar = svg.selectAll(".bar")
+        .data(bins)
+        .enter().append("g")
+            .attr("class", "bar");
+
+    bar.append("rect")
+    bar.append("text")
+
+    size_bars(bins, x, false);
 
     svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", `translate(0,${HEIGHT- MARGIN.bottom})`)
         .call(xAxis);
 
 /*
@@ -109,49 +128,31 @@ function diagram(values) {
     svg.append("g")
         .call(yAxis);
 */
-    return svg.node();
 }
 
 function refresh(values) {
 
-/*
-    var x = d3.scaleLinear()
-        .domain(d3.extent(values)).nice()
-        .range([MARGIN.left, WIDTH - MARGIN.right]);
-*/
+    x.domain(get_x_axis_extent(values)).nice();
 
     var bins = d3.histogram()
         .domain(x.domain())
         .thresholds(x.ticks(NUM_BINS))
       (values);
 
-    var colorScale = d3.scaleLinear()
-        .domain(d3.extent(bins, d => d.length))
-        .range([d3.rgb(COLOR).brighter(), d3.rgb(COLOR).darker()]);
-
-    var y = d3.scaleLinear()
-        .domain([0, d3.max(bins, d => d.length)]).nice()
-        .range([HEIGHT - MARGIN.bottom, MARGIN.top]);
-
     var bar = svg.selectAll(".bar").data(bins);
+    bar.exit().remove(); // remove unneeded bars
 
-    // remove object with data
-    bar.exit().remove();
+    bar.enter().append("g")
+        .attr("class", "bar");
 
-    bar.transition()
-        .duration(1000)
-        .attr("transform", function(d) { return "translate(" + x(d.x0) + "," + y(d.length) + ")"; });
+    bar.enter().append("rect")
+    bar.append("text")
 
-    bar.select("rect")
+    size_bars(bins, x, true);
+
+    svg.select(".x")
         .transition()
-        .duration(1000)
-        .attr("height", d => y(0) - y(d.length))
-        .attr("fill", d => colorScale(d.length));
-
-    bar.select("text")
-        .transition()
-        .duration(1000)
-        .text(d => barText(d));
+        .call(xAxis);
 }
 
 function reload_diagram(d) {
