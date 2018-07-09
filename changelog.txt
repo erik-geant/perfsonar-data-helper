@@ -5,3 +5,4 @@
 0.5 handle sls connection errors gracefully
 0.6 link mp selecton to tests with some forms+params
 0.7 added missing templates to release archive
+0.8 improved histogram transitions, code cleanup
