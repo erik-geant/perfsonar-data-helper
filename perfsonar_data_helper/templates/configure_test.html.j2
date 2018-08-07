@@ -11,21 +11,77 @@
   <input type="text" name="destination" value="{{ destination }}" />
   <button onclick="selectMP('destination')">Select Destination</button><br/>
 
-  measurement type: <select id="measurement" name="measurement">
-    <option value="latency">latency</option>
-    <option value="throughput">throughput</option>
-  </select><br/>
+
+<div id="latency-params">
+  Wait Time (s): <input type="text" name="wait" value="{{ wait }}" /><br>
+  Timeout (s): <input type="text" name="timeout" value="{{ timeout }}" /><br>
+  Padding size (B): <input type="text" name="padding" value="{{ padding }}" /><br>
+  Start delay (s): <input type="text" name="delay" value="{{ delay }}" /><br>
+  DSCP: <input type="text" name="dscp" value="{{ dscp }}" /><br>
+  Bucket size: <input type="text" name="bucket" value="{{ bucket }}" /><br>
+</div>
+
+<div id="throughput-params">
+  Test duration (s): <input type="text" name="duration" value="{{ duration }}" /><br>
+  Reporting interval (s): <input type="text" name="interval" value="{{ interval }}" /><br>
+  Type of Service bits: <input type="text" name="tos" value="{{ tos }}" /><br>
+
+  Protocol:
+  <input type="radio" id="tcp" name="protocol" value="tcp">
+  <label for="tcp">tcp</label>
+  <input type="radio" id="udp" name="protocol" value="udp">
+  <label for="udp">udp</label><br/>
+
+  Address Type:
+  <input type="radio" id="ipv4" name="address_type" value="ipv4">
+  <label for="ipv4">ipv4</label>
+  <input type="radio" id="ipv6" name="address_type" value="ipv6">
+  <label for="ipv6">ipv6</label><br/>
+
+  TCP Window size (bytes): <input type="text" name="tcp_window" value="{{ tcp_window }}" /><br>
+  UDP buffer size (bytes): <input type="text" name="udp_buffer" value="{{ udp_buffer }}" /><br>
+  Maximum bandwidth (Mbps): <input type="text" name="max_bandwidth" value="{{ max_bandwidth }}" /><br>
+</div>
+
+  measurement type:
+  <input type="radio" id="latency" name="measurement" value="latency" onchange="setTestType('latency')"/>
+  <label for="latency">Latency</label>
+  <input type="radio" id="throughput" name="measurement" value="throughput" onchange="setTestType('throughput')"/>
+  <label for="throughput">Throughput</label><br>
 
   <input type="submit" value="Run" />
 </form>
 </body>
 <script>
+
+  function setTestType(testType) {
+    console.log('new test type' + testType);
+    if (testType == 'latency') {
+        document.getElementById("latency-params").style.display = "inline";
+        document.getElementById("throughput-params").style.display = "none";
+    } else {
+        document.getElementById("latency-params").style.display = "none";
+        document.getElementById("throughput-params").style.display = "inline";
+    }
+  }
+
   function selectMP(participant) {
         document.getElementById('state').value = 'select ' + participant;
         document.getElementById('run_form').submit();
   }
+
   (function () {
-        document.getElementById('measurement').value = "{{ measurement }}" || "latency";
+        testType = "{{ measurement }}" || "latency";
+        document.getElementById(testType).checked = true;
+        setTestType(testType);
+
+        protocol = "{{ protocol }}" || "tcp"
+        document.getElementById(protocol).checked = true;
+
+        addressType = "{{ address_type }}" || "ipv4"
+        document.getElementById(addressType).checked = true;
+
+
   })();
 
 </script>
