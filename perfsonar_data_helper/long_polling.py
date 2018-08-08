@@ -20,10 +20,31 @@ MEASUREMENT_REQUEST_SCHEMA = {
             "type": "string",
             "enum": ["latency", "throughput"]
         },
-        "source": {"type": "string"},
-        "destination": {"type": "string"}
+        "params": {
+            "type": "object",
+            "properties": {
+                "source": {"type": "string"},
+                "destination": {"type": "string"},
+                "wait": {"type": "string"},
+                "timeout": {"type": "string"},
+                "padding": {"type": "string"},
+                "delay": {"type": "string"},
+                "dscp": {"type": "string"},
+                "bucket": {"type": "string"},
+
+                "duration": {"type": "string"},
+                "interval": {"type": "string"},
+                "tos": {"type": "string"},
+                "protocol": {"type": "string"},
+                "address_type": {"type": "string"},
+                "tcp_window": {"type": "string"},
+                "udp_buffer": {"type": "string"},
+                "max_bandwidth": {"type": "string"},
+            },
+            "required": ["source", "destination"]
+        },
     },
-    "required": ["type", "source", "destination"]
+    "required": ["type", "params"]
 }
 
 STATUS_RESPONSE_SCHEMA = {
@@ -103,27 +124,28 @@ def pscheduler_measurement():
     if payload is None:
         raise APIError("expected json payload")
 
-    validate(payload, MEASUREMENT_REQUEST_SCHEMA)
+    try:
+        validate(payload, MEASUREMENT_REQUEST_SCHEMA)
+    except ValidationError as e:
+        raise APIError(str(e))
 
-    if not isinstance(payload, dict) \
-        or not {"type", "source", "destination"}.issubset(set(payload.keys())):
-        raise APIError("invalid payload format")
+    params = payload["params"]
 
     if payload["type"] == "latency":
         test_data = latency.make_test_data(
-            payload["source"],
-            payload["destination"])
+            params["source"],
+            params["destination"])
     elif payload["type"] == "throughput":
         test_data = throughput.make_test_data(
-            payload["source"],
-            payload["destination"])
+            params["source"],
+            params["destination"])
     else:
         raise APIError("bad measurement type")
 
     logging.debug("creating task, test data: %r" % test_data)
 
     task_url = pscheduler_client.create_task(
-        payload["source"],
+        params["source"],
         test_data)
 
     session["task_url"] = task_url
