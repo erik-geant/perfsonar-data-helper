@@ -11,19 +11,17 @@ from perfsonar_data_helper.throughput import THROUGHPUT_RESPONSE_SCHEMA
 
 test_data = [
     # bad destination type
-    dict(type="aaa", source="sfsfda", destination=1),
+    dict(type="aaa", params=dict(source="sfsfda", destination=1)),
     # bad source type
-    dict(type="aaa", source=234, destination="aaa"),
+    dict(type="aaa", params=dict(source=234, destination="aaa")),
     # bad 'type' type
-    dict(type=123, source="sfsfda", destination="aaa"),
+    dict(type=123, params=dict(source="sfsfda", destination="aaa")),
     # missing type
-    dict(source="sfsfda", destination="aaa"),
-    # missing type
-    dict(source="sfsfda", destination="aaa"),
+    {"params": dict(source="sfsfda", destination="aaa")},
     # missing source
-    dict(type="sfsfda", destination="aaa"),
-    # missing source
-    dict(source="sfsfda", type="aaa"),
+    dict(type="sfsfda", params=dict(destination="aaa")),
+    # missing destination
+    dict(type="aaa", params=dict(source="sfsfda")),
 ]
 
 
@@ -80,11 +78,11 @@ def _poll(client, test_data):
 
 @responses.activate
 def test_latency_polling_happy_flow(client, mocked_latency_test_data):
-    test_data = {
-        "type": "latency",
-        "source": mocked_latency_test_data["source"],
-        "destination": mocked_latency_test_data["destination"]
-    }
+    test_data = dict(
+        type="latency",
+        params=dict(
+            source=mocked_latency_test_data["source"],
+            destination=mocked_latency_test_data["destination"]))
 
     test_schema = {"minItems": 1}
     test_schema.update(LATENCY_RESPONSE_SCHEMA)
@@ -95,11 +93,11 @@ def test_latency_polling_happy_flow(client, mocked_latency_test_data):
 
 @responses.activate
 def test_throughput_polling_happy_flow(client, mocked_throughput_test_data):
-    test_data = {
-        "type": "throughput",
-        "source": mocked_throughput_test_data["source"],
-        "destination": mocked_throughput_test_data["destination"]
-    }
+    test_data = dict(
+        type="throughput",
+        params=dict(
+            source=mocked_throughput_test_data["source"],
+            destination=mocked_throughput_test_data["destination"]))
 
     test_schema = {"minItems": 1}
     test_schema.update(THROUGHPUT_RESPONSE_SCHEMA)

@@ -127,7 +127,7 @@ def pscheduler_measurement():
     try:
         validate(payload, MEASUREMENT_REQUEST_SCHEMA)
     except ValidationError as e:
-        raise APIError(str(e))
+        raise APIError(str(e), status_code=400)
 
     params = payload["params"]
 
