@@ -5,6 +5,8 @@ import requests
 
 class PSchedulerError(Exception):
     status_code = 503
+    def __init__(self, message):
+        self.message = message
 
 
 def get_task_status(task_url):

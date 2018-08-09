@@ -1,5 +1,6 @@
 import base64
 import json
+import logging
 import os
 from flask import Blueprint, current_app, url_for, \
         send_from_directory, request, render_template
@@ -16,6 +17,39 @@ static_base_path = os.path.join(
 def send_static(path):
     return send_from_directory(static_base_path, path)
 
+
+DEFAULT_PARAMS = {
+    "source": "",
+    "destination": "",
+    "measurement": "",
+
+    # latency params
+    "wait": "",
+    "timeout": "",
+    "padding": "",
+    "delay": "",
+    "dscp": "",
+    "bucket": "",
+
+    # throughput params
+    "duration": "",
+    "interval": "",
+    "tos": "",
+    "protocol": "",
+    "address_type": "",
+    "tcp_window": "",
+    "udp_buffer": "",
+    "max_bandwidth": "",
+}
+
+LATENCY_PARAM_NAMES = [
+    "source", "destination",
+    "wait", "timeout", "padding", "delay", "dscp", "bucket"]
+THROUGHPUT_PARAM_NAMES = [
+    "source", "destination",
+    "duration", "interval", "tos", "protocol", "address_type",
+    "tcp_window", "udp_buffer", "max_bandwidth"]
+
 @examples.route("/sample/run-test", methods=['GET', 'POST'])
 def run_test():
 
@@ -25,28 +59,28 @@ def run_test():
             previous = json.loads(
                 base64.b64decode(previous.encode("utf-8")).decode("utf-8"))
         else:
-            previous = {
-                "source": "",
-                "destination": "",
-                "measurement": ""
-            }
-        return {
-            "source": request.values.get(
-                "source",
-                previous["source"]),
-            "destination": request.values.get(
-                "destination",
-                previous["destination"]),
-            "measurement": request.values.get(
-                "measurement",
-                previous["measurement"]
-            )
-        }
+            previous = DEFAULT_PARAMS
+
+        logging.error("%r" % request.values)
+        return dict([(p, request.values.get(p, previous[p]))
+                 for p in DEFAULT_PARAMS.keys()])
 
     def _encoded_current_params():
         return base64.b64encode(
             json.dumps(_current_params()).encode("utf-8")).decode("utf-8")
 
+    def _measurement_params_string():
+        request_params = _current_params()
+        if request_params["measurement"] == "latency":
+            param_names = LATENCY_PARAM_NAMES
+        else:
+            param_names = THROUGHPUT_PARAM_NAMES
+
+        param_strings = []
+        for n in param_names:
+            if request_params[n]:
+                param_strings.append('%s: "%s"' % (n, request_params[n]))
+        return "{%s}" % ", ".join(param_strings)
 
     state = request.values.get("state", "configure")
 
@@ -67,14 +101,15 @@ def run_test():
     elif state == "run":
         params = _current_params()
         if params["measurement"] == "latency":
-            return render_template(
-                "latency-histogram-http-long-polling.html.j2",
-                **params)
+            filename = "latency-histogram-http-long-polling.html.j2"
         elif params["measurement"] == "throughput":
-            return render_template(
-                "throughput-timeseries-http-long-polling.html.j2",
-                **params)
-        assert False, "unknown meaurement value: '%s'" % params["measurement"]
+            filename = "throughput-timeseries-http-long-polling.html.j2"
+        else:
+            assert False, \
+                "unknown meaurement value: '%s'" % params["measurement"]
+        return render_template(
+            filename,
+            measurement_params=_measurement_params_string())
     else:
         return render_template(
             "configure_test.html.j2",

@@ -52,14 +52,14 @@ def _run_measurement(mp, test_data):
 
 @api.route("/latency/<string:source>/<string:destination>")
 def latency_measurement(source, destination):
-    test_data = latency.make_test_data(source, destination)
+    test_data = latency.make_test_data({"source": source, "destination": destination})
     result = _run_measurement(source, test_data)
     return jsonify(latency.format_result(result))
 
 
 @api.route("/throughput/<string:source>/<string:destination>")
 def throughput_measurement(source, destination):
-    test_data = throughput.make_test_data(source, destination)
+    test_data = throughput.make_test_data({"source": source, "destination": destination})
     result = _run_measurement(source, test_data)
     return jsonify(throughput.format_result(result))
 

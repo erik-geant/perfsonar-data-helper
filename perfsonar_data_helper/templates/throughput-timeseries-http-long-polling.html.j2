@@ -12,7 +12,6 @@ Status: <i><span id="status">None</span></i><br/>
 <script>
     launch_long_polling_measurement({
         type: "throughput",
-        source: "{{ source }}",
-        destination: "{{ destination }}"
+        params: {{ measurement_params }}
     });
 </script>

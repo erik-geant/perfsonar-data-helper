@@ -1,4 +1,22 @@
+import jsonschema
 from perfsonar_data_helper.pscheduler import client
+
+
+LATENCY_TEST_PARAMS_SCHEMA = {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "object",
+    "properties": {
+        "source": {"type": "string"},
+        "destination": {"type": "string"},
+        "wait": {"type": "string"},
+        "timeout": {"type": "string"},
+        "padding": {"type": "string"},
+        "delay": {"type": "string"},
+        "dscp": {"type": "string"},
+        "bucket": {"type": "string"},
+    },
+    "required": ["source", "destination"]
+}
 
 LATENCY_RESPONSE_SCHEMA = {
     "$schema": "http://json-schema.org/draft-06/schema#",
@@ -25,10 +43,13 @@ def format_result(task_result):
     return [_delta(x) for x in task_result["raw-packets"]]
 
 
-def make_test_data(source, destination):
+def make_test_data(test_params):
+
+    jsonschema.validate(test_params, LATENCY_TEST_PARAMS_SCHEMA)
+
     test_spec = {
-        "source": source,
-        "dest": destination,
+        "source": test_params["source"],
+        "dest": test_params["destination"],
         #        "packet-count": 10,
         "output-raw": True,
         "schema": 1
