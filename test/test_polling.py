@@ -82,7 +82,15 @@ def test_latency_polling_happy_flow(client, mocked_latency_test_data):
         type="latency",
         params=dict(
             source=mocked_latency_test_data["source"],
-            destination=mocked_latency_test_data["destination"]))
+            destination=mocked_latency_test_data["destination"],
+            duration="1",
+            interval="1",
+            tos="1",
+            protocol="1",
+            address_type="1",
+            tcp_window="1",
+            udp_buffer="1",
+            max_bandwidth="1"))
 
     test_schema = {"minItems": 1}
     test_schema.update(LATENCY_RESPONSE_SCHEMA)
@@ -97,7 +105,13 @@ def test_throughput_polling_happy_flow(client, mocked_throughput_test_data):
         type="throughput",
         params=dict(
             source=mocked_throughput_test_data["source"],
-            destination=mocked_throughput_test_data["destination"]))
+            destination=mocked_throughput_test_data["destination"],
+            wait="1",
+            timeout="1",
+            padding="1",
+            delay="1",
+            dscp="1",
+            bucket="1"))
 
     test_schema = {"minItems": 1}
     test_schema.update(THROUGHPUT_RESPONSE_SCHEMA)
