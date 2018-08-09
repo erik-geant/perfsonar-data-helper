@@ -58,8 +58,8 @@ def make_test_data(test_params):
         "schema": 1,
         "source": test_params["source"],
         "dest": test_params["destination"],
-        "duration": test_params.get("duration", "PT30S"),
-        "interval": "PT%sS" % test_params.get("interval", 6)
+        "duration": "PT%sS" % test_params.get("duration", "30"),
+        "interval": "PT%sS" % test_params.get("interval", "6")
     }
 
     if "tcp_window" in test_params:
@@ -71,8 +71,8 @@ def make_test_data(test_params):
     #     elif test_params["address_type"] == "ipv6":
     #         test_spec["ipv6_only"] = 1
 
-    if "protocol" in test_params:
-        test_spec["protocol"] = test_params["protocol"]
+    # if "protocol" in test_params:
+    #     test_spec["protocol"] = test_params["protocol"]
 
     # if "max_bandwidth" in test_params:
     #     test_spec["bandwidth"] = test_params["max_bandwidth"]
