@@ -86,8 +86,8 @@ def test_latency_polling_happy_flow(client, mocked_latency_test_data):
             duration="1",
             interval="1",
             tos="1",
-            protocol="1",
-            address_type="1",
+            protocol="udp",
+            address_type="ipv6",
             tcp_window="1",
             udp_buffer="1",
             max_bandwidth="1"))

@@ -35,8 +35,8 @@ MEASUREMENT_REQUEST_SCHEMA = {
                 "duration": {"type": "string"},
                 "interval": {"type": "string"},
                 "tos": {"type": "string"},
-                "protocol": {"type": "string"},
-                "address_type": {"type": "string"},
+                "protocol": {"type": "string", "enum": ["udp", "tcp"]},
+                "address_type": {"type": "string", "enum": ["ipv4", "ipv6"]},
                 "tcp_window": {"type": "string"},
                 "udp_buffer": {"type": "string"},
                 "max_bandwidth": {"type": "string"},
@@ -132,13 +132,9 @@ def pscheduler_measurement():
     params = payload["params"]
 
     if payload["type"] == "latency":
-        test_data = latency.make_test_data(
-            params["source"],
-            params["destination"])
+        test_data = latency.make_test_data(params)
     elif payload["type"] == "throughput":
-        test_data = throughput.make_test_data(
-            params["source"],
-            params["destination"])
+        test_data = throughput.make_test_data(params)
     else:
         raise APIError("bad measurement type")
 
