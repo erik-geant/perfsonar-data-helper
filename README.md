@@ -211,10 +211,30 @@ to the following JSON schema:
                 "type": "string",
                 "enum": ["latency", "throughput"]
             },
-            "source": {"type": "string"},
-            "destination": {"type": "string"}
+            "params": {
+                "type": "object",
+                "properties": {
+                    "source": {"type": "string"},
+                    "destination": {"type": "string"},
+                    "wait": {"type": "string"},
+                    "timeout": {"type": "string"},
+                    "padding": {"type": "string"},
+                    "delay": {"type": "string"},
+                    "dscp": {"type": "string"},
+                    "bucket": {"type": "string"},
+                    "duration": {"type": "string"},
+                    "interval": {"type": "string"},
+                    "tos": {"type": "string"},
+                    "protocol": {"type": "string", "enum": ["udp", "tcp"]},
+                    "address_type": {"type": "string", "enum": ["ipv4", "ipv6"]},
+                    "tcp_window": {"type": "string"},
+                    "udp_buffer": {"type": "string"},
+                    "max_bandwidth": {"type": "string"},
+                },
+                "required": ["source", "destination"]
+            },
         },
-        "required": ["type", "source", "destination"]
+        "required": ["type", "params"]
     }
   ```
 
