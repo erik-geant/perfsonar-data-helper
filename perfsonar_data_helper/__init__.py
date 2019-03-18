@@ -25,14 +25,15 @@ def create_app():
     from perfsonar_data_helper import sls
     from perfsonar_data_helper import simple
     from perfsonar_data_helper import long_polling
-
+    from perfsonar_data_helper import json_proxy
     from perfsonar_data_helper import example_routes
 
     app.register_blueprint(simple.api)
     app.register_blueprint(long_polling.api)
     app.register_blueprint(example_routes.examples)
+    app.register_blueprint(json_proxy.api, url_prefix='/json-proxy')
 
-    SESSION_TYPE = "filesystem"
+    # SESSION_TYPE = "filesystem"
 
     app.config.from_object("perfsonar_data_helper.default_settings")
     if "SETTINGS_FILENAME" in os.environ:
