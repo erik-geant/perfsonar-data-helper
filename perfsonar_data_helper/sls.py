@@ -61,10 +61,10 @@ def update_cached_mps(bootstrap_url, cache_filename):
 
 
 def hostname_from_url(url):
-    m = re.match('^(?P<scheme>http|https|tcp)://(?P<hostname>[^/]+).*', url)
+    m = re.match(r'^(?P<scheme>http|https|tcp)://(?P<hostname>[^/]+).*', url)
     if m is None:
         return url
-    m1 = re.match('^(.*):[^\[\]:]+$', m.group("hostname"))
+    m1 = re.match(r'^(.*):[^\[\]:]+$', m.group("hostname"))
     if m1:
         return m1.group(1)
     return m.group("hostname")
