@@ -1,4 +1,14 @@
+
+1. [perfSONAR data helper API]
+   1. [Overview]
+   2. [Configuration]
+   3. [Running this module]
+   4. [Protocol specification]
+2. [Example Visualizations]
+
+
 # perfSONAR data helper API
+
 
 ## Overview
 
@@ -17,7 +27,7 @@ Please refer to [RFC 2616](https://tools.ietf.org/html/rfc2616)
 and www.json.org for more details.
 
 
-## configuration
+## Configuration
 
 A configuration file can be provided when launching the web service.
 The runtime-accessible path of this file should be
@@ -47,7 +57,7 @@ The following values are valid in the configuration file.
  between each request when polling for pscheduler task status
 
 
-## running this module
+## Running this module
 
 This module has been tested in the following execution environments:
 
@@ -201,10 +211,30 @@ to the following JSON schema:
                 "type": "string",
                 "enum": ["latency", "throughput"]
             },
-            "source": {"type": "string"},
-            "destination": {"type": "string"}
+            "params": {
+                "type": "object",
+                "properties": {
+                    "source": {"type": "string"},
+                    "destination": {"type": "string"},
+                    "wait": {"type": "string"},
+                    "timeout": {"type": "string"},
+                    "padding": {"type": "string"},
+                    "delay": {"type": "string"},
+                    "dscp": {"type": "string"},
+                    "bucket": {"type": "string"},
+                    "duration": {"type": "string"},
+                    "interval": {"type": "string"},
+                    "tos": {"type": "string"},
+                    "protocol": {"type": "string", "enum": ["udp", "tcp"]},
+                    "address_type": {"type": "string", "enum": ["ipv4", "ipv6"]},
+                    "tcp_window": {"type": "string"},
+                    "udp_buffer": {"type": "string"},
+                    "max_bandwidth": {"type": "string"},
+                },
+                "required": ["source", "destination"]
+            },
         },
-        "required": ["type", "source", "destination"]
+        "required": ["type", "params"]
     }
   ```
 
@@ -219,3 +249,25 @@ to the following JSON schema:
   iff the value of the `status` element is `complete`.  In this
   case the `data` element is formatted exactly as the responses
   defined for the `/throughput/*/*` or `/latency/*/*` requests.
+
+
+# Example Visualizations
+
+The project also contains some sample visualizations of
+measurement results.  There's a demo installation of
+recent code running here:
+
+- http://test-psui-vis.geant.org:9876/sample/run-test
+
+This is a simple web form allowing measurement source and
+destinations to be selected, as well as a choice of
+measurement type: either latency or throughput.
+
+Once a measurement is started, a javascript thread polls
+the `/pscheduler/status` resource until a state of `complete`
+is returned.  There are two types of measurements possible,
+and two types of corresponding graphs: histogram for latency/owping
+tests and line timeseries for throughput/iperf3.
+
+
+

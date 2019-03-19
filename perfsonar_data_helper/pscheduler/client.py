@@ -5,6 +5,7 @@ import requests
 
 class PSchedulerError(Exception):
     status_code = 503
+
     def __init__(self, message):
         self.message = message
 
@@ -16,11 +17,13 @@ def get_task_status(task_url):
         headers={"Accept": "application/json"})
 
     if rsp.status_code != 200:
-        raise PSchedulerError("error retrieving task status, code: %d" % rsp.status_code)
+        raise PSchedulerError(
+            "error retrieving task status, code: %d" % rsp.status_code)
 
     task_status = rsp.json()
     logging.debug("task state: %s" % task_status["state"])
-    if task_status["state"] not in {"pending", "on-deck", "running", "finished"}:
+    if task_status["state"] not in {
+            "pending", "on-deck", "running", "finished"}:
         logging.warning("unusual task state: " + task_status["state"])
 
     result_data = None
@@ -58,9 +61,8 @@ def create_task(mp_hostname, task_data):
         json=task_data)
 
     if rsp.status_code != 200:
-        raise PSchedulerError("error submitting task, code: %d" % rsp.status_code)
+        raise PSchedulerError(
+            "error submitting task, code: %d" % rsp.status_code)
 
     logging.debug("task created: %s" % rsp.text)
     return rsp.text.rstrip().replace('"', '')
-
-

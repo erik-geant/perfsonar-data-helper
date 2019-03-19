@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="perfsonar_data_helper",
-    version="0.9",
+    version="0.10",
     author="GEANT",
     author_email="swd@geant.org",
     description="wrapper for pscheduler i/o",
@@ -17,4 +17,3 @@ setup(
         "jsonschema"
     ]
 )
-

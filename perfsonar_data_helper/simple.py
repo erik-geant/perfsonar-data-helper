@@ -47,19 +47,22 @@ def _run_measurement(mp, test_data):
             logging.error("unknown state: %r ... ending measurement")
             raise APIError("received an unknown task state: %r" % state)
 
-        time.sleep(current_app.config["PSCHEDULER_TASK_POLLING_INTERVAL_SECONDS"])
+        time.sleep(current_app.config[
+                       "PSCHEDULER_TASK_POLLING_INTERVAL_SECONDS"])
 
 
 @api.route("/latency/<string:source>/<string:destination>")
 def latency_measurement(source, destination):
-    test_data = latency.make_test_data({"source": source, "destination": destination})
+    test_data = latency.make_test_data(
+        {"source": source, "destination": destination})
     result = _run_measurement(source, test_data)
     return jsonify(latency.format_result(result))
 
 
 @api.route("/throughput/<string:source>/<string:destination>")
 def throughput_measurement(source, destination):
-    test_data = throughput.make_test_data({"source": source, "destination": destination})
+    test_data = throughput.make_test_data(
+        {"source": source, "destination": destination})
     result = _run_measurement(source, test_data)
     return jsonify(throughput.format_result(result))
 
@@ -76,4 +79,3 @@ def mplist(tool):
         result = list(result)
 
     return jsonify(result)
-

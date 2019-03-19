@@ -21,7 +21,7 @@ LATENCY_TEST_PARAMS_SCHEMA = {
 LATENCY_RESPONSE_SCHEMA = {
     "$schema": "http://json-schema.org/draft-06/schema#",
     "type": "array",
-#    "minItems": 1,
+    # "minItems": 1,
     "minimum": 0.0,
     "items": {"type": "number"},
 }
