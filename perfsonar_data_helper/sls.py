@@ -1,10 +1,8 @@
 import json
 import logging
-import random
 import re
 import requests
 from requests_futures.sessions import FuturesSession
-
 
 
 def load_sls_hosts(bootstrap_url):
@@ -17,6 +15,7 @@ def load_sls_hosts(bootstrap_url):
         h["locator"] for h in rsp.json()["hosts"]
         if h["status"] == "alive"
     ]
+
 
 def load_services(bootstrap_url):
 
@@ -40,19 +39,20 @@ def load_services(bootstrap_url):
         if rsp.status_code == 200:
             all_responses[url] = rsp.json()
         else:
-            logging.error("'%s' returned status code %d" % (url, rsp.status_code))
+            logging.error(
+                "'%s' returned status code %d" % (url, rsp.status_code))
             all_responses[url] = []
     return all_responses
 
 
-def hostname_from_url(url):
-    m = re.match("http.://(\[.*\]).*", url)
-    if m is not None:
-        return m.group(1)
-    m = re.match(".*//([^:/]+).*", url)
-    if m is not None:
-        return m.group(1)
-    return "???"
+# def hostname_from_url(url):
+#     m = re.match("http.://(\[.*\]).*", url)
+#     if m is not None:
+#         return m.group(1)
+#     m = re.match(".*//([^:/]+).*", url)
+#     if m is not None:
+#         return m.group(1)
+#     return "???"
 
 
 def update_cached_mps(bootstrap_url, cache_filename):
@@ -123,4 +123,3 @@ if __name__ == "__main__":
         default_settings.SLS_CACHE_FILENAME)
 
     logging.info(list(mps))
-

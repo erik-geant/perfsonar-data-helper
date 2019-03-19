@@ -2,7 +2,7 @@ import base64
 import json
 import logging
 import os
-from flask import Blueprint, current_app, url_for, \
+from flask import Blueprint, url_for, \
         send_from_directory, request, render_template
 
 
@@ -50,6 +50,7 @@ THROUGHPUT_PARAM_NAMES = [
     "duration", "interval", "tos", "protocol", "address_type",
     "tcp_window", "udp_buffer", "max_bandwidth"]
 
+
 @examples.route("/sample/run-test", methods=['GET', 'POST'])
 def run_test():
 
@@ -62,8 +63,10 @@ def run_test():
             previous = DEFAULT_PARAMS
 
         logging.error("%r" % request.values)
-        return dict([(p, request.values.get(p, previous[p]))
-                 for p in DEFAULT_PARAMS.keys()])
+        return dict([
+            (p, request.values.get(p, previous[p]))
+            for p in DEFAULT_PARAMS.keys()
+        ])
 
     def _encoded_current_params():
         return base64.b64encode(
@@ -134,4 +137,3 @@ def run_test():
     #     - return url???
     #     - render template
     #
-

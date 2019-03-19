@@ -1,5 +1,4 @@
 import json
-import logging
 
 from jsonschema import validate
 import pytest
@@ -48,7 +47,7 @@ def _poll(client, test_data):
     rv = client.post(
         "/pscheduler/measurement",
         data=json.dumps(test_data),
-        headers = {
+        headers={
             'Content-Type': 'application/json',
             'Accept': 'application/json'
         }
@@ -67,7 +66,7 @@ def _poll(client, test_data):
         validate(response_payload, STATUS_RESPONSE_SCHEMA)
 
         if response_payload["type"] != "complete":
-            assert "message" in response_payload;
+            assert "message" in response_payload
             continue
 
         assert "data" in response_payload

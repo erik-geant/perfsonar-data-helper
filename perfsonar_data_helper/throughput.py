@@ -23,7 +23,7 @@ THROUGHPUT_TEST_PARAMS_SCHEMA = {
 THROUGHPUT_RESPONSE_SCHEMA = {
     "$schema": "http://json-schema.org/draft-06/schema#",
     "type": "array",
-#    "minItems": 1,
+    # "minItems": 1,
     "items": {
         "type": "object",
         "properties": {

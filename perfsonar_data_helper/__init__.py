@@ -10,6 +10,7 @@ from flask_cors import CORS
 # SECRET_KEY = '123456789012345678901234'
 # SESSION_TYPE = 'filesystem'
 
+
 def create_app():
     """
     overrides settings from the filename defined in env var

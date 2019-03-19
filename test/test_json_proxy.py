@@ -25,7 +25,6 @@ def test_post_with_json_parameters(client):
         content_type=response_content_type,
         callback=_callback)
 
-
     request_payload = {
         'url': remote_url,
         'parameters': {

@@ -1,9 +1,8 @@
 import datetime
-import json
 import logging
 import time
 
-from flask import Blueprint, current_app, jsonify, session, request, Response
+from flask import Blueprint, jsonify, session, request, Response
 from jsonschema import validate, ValidationError
 
 from perfsonar_data_helper import latency
@@ -157,7 +156,8 @@ def pscheduler_status():
 
     assert session["type"] in {"latency", "throughput"}  # sanity
 
-    logging.debug("calling get_task_status, task_url: %r" % session["task_url"])
+    logging.debug(
+        "calling get_task_status, task_url: %r" % session["task_url"])
     state, result = pscheduler_client.get_task_status(session["task_url"])
     logging.debug("task state: %r" % state)
 
