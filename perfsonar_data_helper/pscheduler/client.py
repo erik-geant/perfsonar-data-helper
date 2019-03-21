@@ -3,6 +3,9 @@ import time
 import requests
 
 
+logger = logging.getLogger(__name__)
+
+
 class PSchedulerError(Exception):
     status_code = 503
 
@@ -21,10 +24,10 @@ def get_task_status(task_url):
             "error retrieving task status, code: %d" % rsp.status_code)
 
     task_status = rsp.json()
-    logging.debug("task state: %s" % task_status["state"])
+    logger.debug("task state: %s" % task_status["state"])
     if task_status["state"] not in {
             "pending", "on-deck", "running", "finished"}:
-        logging.warning("unusual task state: " + task_status["state"])
+        logger.warning("unusual task state: " + task_status["state"])
 
     result_data = None
     if task_status["state"] == "finished":
@@ -41,11 +44,11 @@ def get_task_status(task_url):
 
 
 def get_task_result(task_url, polling_interval):
-    logging.debug("task result url: %s" % (task_url + "/runs/first"))
+    logger.debug("task result url: %s" % (task_url + "/runs/first"))
     while True:
         _, data = get_task_status(task_url)
         if data:
-            # logging.debug("task result: " + json.dumps(status))
+            # logger.debug("task result: " + json.dumps(status))
             return data
         if polling_interval > 0:
             time.sleep(polling_interval)
@@ -53,8 +56,8 @@ def get_task_result(task_url, polling_interval):
 
 def create_task(mp_hostname, task_data):
     mp_url = 'https://%s/pscheduler/tasks' % mp_hostname
-    logging.debug("mp url: '%s'" % mp_url)
-    logging.debug("request data: %r" % task_data)
+    logger.debug("mp url: '%s'" % mp_url)
+    logger.debug("request data: %r" % task_data)
     rsp = requests.post(
         mp_url,
         verify=False,
@@ -64,5 +67,5 @@ def create_task(mp_hostname, task_data):
         raise PSchedulerError(
             "error submitting task, code: %d" % rsp.status_code)
 
-    logging.debug("task created: %s" % rsp.text)
+    logger.debug("task created: %s" % rsp.text)
     return rsp.text.rstrip().replace('"', '')
