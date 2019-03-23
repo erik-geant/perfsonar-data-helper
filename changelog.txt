@@ -8,3 +8,4 @@
 0.8 improved histogram transitions, code cleanup
 0.9 added test params
 0.10 added json-proxy routes
+0.10 added json-proxy/get route
